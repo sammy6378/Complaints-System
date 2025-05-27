@@ -9,6 +9,7 @@ import { StatesModule } from './states/states.module';
 import { UserLogsModule } from './user-logs/user-logs.module';
 import { AdminLogsModule } from './admin-logs/admin-logs.module';
 import { DatabaseModule } from './database/database.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { DatabaseModule } from './database/database.module';
     UserLogsModule,
     AdminLogsModule,
     DatabaseModule,
+    ConfigModule.forRoot(),
   ],
   controllers: [],
   providers: [],
