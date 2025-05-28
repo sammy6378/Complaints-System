@@ -1,22 +1,30 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import 'dotenv/config';
-// import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { join } from 'path';
 
 // pnpm install --save @nestjs/typeorm typeorm mysql2 @nestjs/config
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: process.env.POSTGRES_HOST,
-      port: parseInt(process.env.POSTGRES_PORT ?? '5432', 10),
-      username: process.env.POSTGRES_USER,
-      password: process.env.POSTGRES_PASSWORD,
-      database: process.env.POSTGRES_DB,
-      entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-      autoLoadEntities: true,
-      synchronize: true, // Set to false in production
+    ConfigModule.forRoot(),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('POSTGRES_HOST'),
+        port: parseInt(configService.get('POSTGRES_PORT') ?? '5432', 10),
+        username: configService.get('POSTGRES_USER'),
+        password: configService.get('POSTGRES_PASSWORD'),
+        database: configService.get('POSTGRES_DB'),
+        entities: [join(process.cwd(), 'dist/**/*.entity.js')],
+        synchronize: configService.getOrThrow<boolean>('DB_SYNC', true),
+        logging: configService.getOrThrow<boolean>('DB_LOGGING', false),
+        migrations: [join(process.cwd(), '/../migrations/**/*{.js,ts}')],
+        autoLoadEntities: true,
+      }),
+      inject: [ConfigService],
     }),
   ],
 })
