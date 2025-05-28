@@ -1,5 +1,6 @@
 import {
   IsEmail,
+  IsNotEmpty,
   IsPhoneNumber,
   IsString,
   IsStrongPassword,
@@ -7,9 +8,11 @@ import {
 
 export class CreateUserDto {
   @IsString()
+  @IsNotEmpty()
   full_name: string;
 
   @IsString()
+  @IsNotEmpty()
   username: string;
 
   @IsString()
@@ -17,10 +20,12 @@ export class CreateUserDto {
   email: string;
 
   @IsString()
+  @IsNotEmpty()
   @IsPhoneNumber()
   phone_number: string;
 
   @IsString()
+  @IsNotEmpty()
   @IsStrongPassword()
   password: string;
 }
