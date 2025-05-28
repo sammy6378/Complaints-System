@@ -22,7 +22,10 @@ import { ConfigModule } from '@nestjs/config';
     UserLogsModule,
     AdminLogsModule,
     DatabaseModule,
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
   ],
   controllers: [],
   providers: [],
@@ -32,7 +35,9 @@ export class AppModule implements OnModuleInit {
 
   async onModuleInit() {
     try {
-      await this.dataSource.initialize();
+      if (!this.dataSource.isInitialized) {
+        await this.dataSource.initialize();
+      }
       Logger.log('✅ Database connected successfully', 'PostgreSQL');
     } catch (err) {
       Logger.error('❌ Database connection failed', err, 'PostgreSQL');
