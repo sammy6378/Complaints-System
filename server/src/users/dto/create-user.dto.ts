@@ -1,10 +1,18 @@
 import {
   IsEmail,
+  IsEnum,
   IsNotEmpty,
   IsPhoneNumber,
   IsString,
   IsStrongPassword,
 } from 'class-validator';
+
+// enum
+export enum Check {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  SUSPENDED = 'suspended',
+}
 
 export class CreateUserDto {
   @IsString()
@@ -23,6 +31,13 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsPhoneNumber()
   phone_number: string;
+
+  @IsEnum(Check)
+  status: Check;
+
+  constructor() {
+    this.status = Check.ACTIVE;
+  }
 
   @IsString()
   @IsNotEmpty()
