@@ -1,6 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Check } from '../dto/create-user.dto';
 
-@Entity()
+@Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
@@ -19,6 +20,9 @@ export class User {
 
   @Column()
   password: string;
+
+  @Column({ type: 'enum', enum: Check, default: Check.ACTIVE })
+  status: Check;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
