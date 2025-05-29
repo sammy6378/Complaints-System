@@ -4,6 +4,7 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
+import { ApiResponse, createResponse } from 'src/utils/responseHandler';
 
 @Injectable()
 export class UsersService {
@@ -11,11 +12,11 @@ export class UsersService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<ApiResponse<User>> {
     return await this.userRepository
       .save(createUserDto)
       .then((user) => {
-        return user;
+        return createResponse(user, 'User created successfully');
       })
       .catch((err) => {
         console.error('Error creating user:', err);
@@ -32,14 +33,14 @@ export class UsersService {
     return await this.userRepository.find();
   }
 
-  async findOne(id: number): Promise<User | string> {
+  async findOne(id: number): Promise<ApiResponse<User> | string> {
     return await this.userRepository
       .findOneBy({ id })
       .then((user) => {
         if (!user) {
           return `User with id ${id} not found`;
         }
-        return user;
+        return createResponse(user, 'User found successfully');
       })
       .catch((err) => {
         console.error('Error finding user', err);
@@ -50,7 +51,7 @@ export class UsersService {
   async update(
     id: number,
     updateUserDto: UpdateUserDto,
-  ): Promise<User | string> {
+  ): Promise<ApiResponse<User> | string> {
     await this.userRepository.update(id, updateUserDto);
     return this.findOne(id);
   }
