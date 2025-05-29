@@ -6,16 +6,17 @@ import {
   Patch,
   Param,
   Delete,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { UserLogsService } from './user-logs.service';
 import { CreateUserLogDto } from './dto/create-user-log.dto';
 import { UpdateUserLogDto } from './dto/update-user-log.dto';
 
-@Controller('user-logs')
+@Controller('logs')
 export class UserLogsController {
   constructor(private readonly userLogsService: UserLogsService) {}
 
-  @Post()
+  @Post('create')
   create(@Body() createUserLogDto: CreateUserLogDto) {
     return this.userLogsService.create(createUserLogDto);
   }
@@ -25,18 +26,21 @@ export class UserLogsController {
     return this.userLogsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userLogsService.findOne(+id);
+  @Get('/log/:id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.userLogsService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserLogDto: UpdateUserLogDto) {
-    return this.userLogsService.update(+id, updateUserLogDto);
+  @Patch('/log/:id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateUserLogDto: UpdateUserLogDto,
+  ) {
+    return this.userLogsService.update(id, updateUserLogDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userLogsService.remove(+id);
+  @Delete('/log/:id')
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.userLogsService.remove(id);
   }
 }
