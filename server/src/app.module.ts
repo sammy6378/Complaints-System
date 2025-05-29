@@ -14,6 +14,10 @@ import { LoggerMiddleware } from './logger.middleware';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
     UsersModule,
     AdminsModule,
     ComplaintsModule,
@@ -23,10 +27,6 @@ import { LoggerMiddleware } from './logger.middleware';
     UserLogsModule,
     AdminLogsModule,
     DatabaseModule,
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '.env',
-    }),
     LogsModule,
   ],
   controllers: [],
@@ -34,6 +34,6 @@ import { LoggerMiddleware } from './logger.middleware';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('/users'); // Apply logger middleware to all routes
+    consumer.apply(LoggerMiddleware).forRoutes('/users', '/logs'); // Apply logger middleware to all routes
   }
 }
