@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Check } from '../dto/create-user.dto';
+import { UserLog } from 'src/user-logs/entities/user-log.entity';
 
 @Entity('users')
 export class User {
@@ -33,4 +34,9 @@ export class User {
     onUpdate: 'CURRENT_TIMESTAMP',
   })
   updated_at: Date;
+
+  //   relatioships
+  // user and user-logs [1 to * relationships]
+  @OneToMany(() => UserLog, (userLog) => userLog.user)
+  userLogs: UserLog[];
 }
