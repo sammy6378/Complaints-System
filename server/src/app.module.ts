@@ -1,5 +1,4 @@
-import { Logger, Module, OnModuleInit } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
 import { AdminsModule } from './admins/admins.module';
 import { ComplaintsModule } from './complaints/complaints.module';
@@ -10,6 +9,8 @@ import { UserLogsModule } from './user-logs/user-logs.module';
 import { AdminLogsModule } from './admin-logs/admin-logs.module';
 import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
+import { LogsModule } from './logs/logs.module';
+import { LoggerMiddleware } from './logger.middleware';
 
 @Module({
   imports: [
@@ -26,21 +27,13 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    LogsModule,
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule implements OnModuleInit {
-  constructor(private dataSource: DataSource) {}
-
-  async onModuleInit() {
-    try {
-      if (!this.dataSource.isInitialized) {
-        await this.dataSource.initialize();
-      }
-      Logger.log('✅ Database connected successfully', 'PostgreSQL');
-    } catch (err) {
-      Logger.error('❌ Database connection failed', err, 'PostgreSQL');
-    }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('/users'); // Apply logger middleware to all routes
   }
 }
