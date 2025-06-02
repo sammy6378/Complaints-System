@@ -43,7 +43,7 @@ export class UserLogsService {
     return await this.logsRepository.find();
   }
 
-  async findOne(id: number): Promise<ApiResponse<UserLog> | string> {
+  async findOne(id: string): Promise<ApiResponse<UserLog> | string> {
     return this.logsRepository
       .findOneBy({ log_id: id })
       .then((log) => {
@@ -59,7 +59,7 @@ export class UserLogsService {
   }
 
   async update(
-    id: number,
+    id: string,
     updateUserLogDto: UpdateUserLogDto,
   ): Promise<ApiResponse<UserLog> | string> {
     await this.logsRepository.update(id, updateUserLogDto).then((log) => {
@@ -70,7 +70,7 @@ export class UserLogsService {
     return await this.findOne(id);
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     return await this.logsRepository.delete(id).then((res) => {
       if (res.affected === 0) {
         throw new Error(`User log with id ${id} not found`);
