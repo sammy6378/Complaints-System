@@ -11,11 +11,11 @@ import { User } from 'src/users/entities/user.entity';
 
 @Entity('user_logs')
 export class UserLog {
-  @PrimaryGeneratedColumn()
-  log_id: number;
+  @PrimaryGeneratedColumn('uuid')
+  log_id: string;
 
   @Column({ type: 'enum', enum: LoginStatus, default: LoginStatus.SUCCESS })
-  login_status: LoginStatus;
+  loginStatus: LoginStatus;
 
   @Column()
   action: string;
