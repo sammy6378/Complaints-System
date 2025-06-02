@@ -33,7 +33,7 @@ export class UsersService {
     return await this.userRepository.find();
   }
 
-  async findOne(id: number): Promise<ApiResponse<User> | string> {
+  async findOne(id: string): Promise<ApiResponse<User> | string> {
     return await this.userRepository
       .findOneBy({ id })
       .then((user) => {
@@ -49,14 +49,14 @@ export class UsersService {
   }
 
   async update(
-    id: number,
+    id: string,
     updateUserDto: UpdateUserDto,
   ): Promise<ApiResponse<User> | string> {
     await this.userRepository.update(id, updateUserDto);
     return this.findOne(id);
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     return await this.userRepository
       .delete(id)
       .then((res) => {
