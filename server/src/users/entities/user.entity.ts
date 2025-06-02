@@ -4,8 +4,8 @@ import { UserLog } from 'src/user-logs/entities/user-log.entity';
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   full_name: string;
