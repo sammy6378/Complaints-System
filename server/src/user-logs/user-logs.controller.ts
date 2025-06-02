@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { UserLogsService } from './user-logs.service';
 import { CreateUserLogDto } from './dto/create-user-log.dto';
@@ -27,20 +26,17 @@ export class UserLogsController {
   }
 
   @Get('/log/:id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(@Param('id') id: string) {
     return this.userLogsService.findOne(id);
   }
 
   @Patch('/log/:id')
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateUserLogDto: UpdateUserLogDto,
-  ) {
+  update(@Param('id') id: string, @Body() updateUserLogDto: UpdateUserLogDto) {
     return this.userLogsService.update(id, updateUserLogDto);
   }
 
   @Delete('/log/:id')
-  remove(@Param('id', ParseIntPipe) id: number) {
+  remove(@Param('id') id: string) {
     return this.userLogsService.remove(id);
   }
 }
