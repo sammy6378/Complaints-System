@@ -27,7 +27,7 @@ export class AdminLogsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.adminLogsService.findOne(+id);
+    return this.adminLogsService.findOne(id);
   }
 
   @Patch(':id')
@@ -35,11 +35,11 @@ export class AdminLogsController {
     @Param('id') id: string,
     @Body() updateAdminLogDto: UpdateAdminLogDto,
   ) {
-    return this.adminLogsService.update(+id, updateAdminLogDto);
+    return this.adminLogsService.update(id, updateAdminLogDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.adminLogsService.remove(+id);
+    return this.adminLogsService.remove(id);
   }
 }
