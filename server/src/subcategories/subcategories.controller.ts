@@ -27,7 +27,7 @@ export class SubcategoriesController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.subcategoriesService.findOne(+id);
+    return this.subcategoriesService.findOne(id);
   }
 
   @Patch(':id')
@@ -35,11 +35,11 @@ export class SubcategoriesController {
     @Param('id') id: string,
     @Body() updateSubcategoryDto: UpdateSubcategoryDto,
   ) {
-    return this.subcategoriesService.update(+id, updateSubcategoryDto);
+    return this.subcategoriesService.update(id, updateSubcategoryDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.subcategoriesService.remove(+id);
+    return this.subcategoriesService.remove(id);
   }
 }
