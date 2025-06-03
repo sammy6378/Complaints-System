@@ -1,4 +1,10 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Relation,
+} from 'typeorm';
 import { Check } from '../dto/create-user.dto';
 import { UserLog } from 'src/user-logs/entities/user-log.entity';
 
@@ -38,5 +44,5 @@ export class User {
   //   relatioships
   // user and user-logs [1 to * relationships]
   @OneToMany(() => UserLog, (userLog) => userLog.user)
-  userLogs: UserLog[];
+  userLogs: Relation<UserLog[]>;
 }
