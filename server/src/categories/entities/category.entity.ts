@@ -1,3 +1,4 @@
+import { Complaint } from 'src/complaints/entities/complaint.entity';
 import { Subcategory } from 'src/subcategories/entities/subcategory.entity';
 import { Column, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 
@@ -23,4 +24,7 @@ export class Category {
 
   @OneToMany(() => Subcategory, (subCategory) => subCategory.category)
   subCategories: Relation<Subcategory[]>;
+
+  @OneToMany(() => Complaint, (complaint) => complaint.category)
+  complaints: Relation<Complaint[]>;
 }
