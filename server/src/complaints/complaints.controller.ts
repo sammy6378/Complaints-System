@@ -27,7 +27,7 @@ export class ComplaintsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.complaintsService.findOne(+id);
+    return this.complaintsService.findOne(id);
   }
 
   @Patch(':id')
@@ -35,11 +35,11 @@ export class ComplaintsController {
     @Param('id') id: string,
     @Body() updateComplaintDto: UpdateComplaintDto,
   ) {
-    return this.complaintsService.update(+id, updateComplaintDto);
+    return this.complaintsService.update(id, updateComplaintDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.complaintsService.remove(+id);
+    return this.complaintsService.remove(id);
   }
 }
