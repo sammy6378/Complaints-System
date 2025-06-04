@@ -1,8 +1,10 @@
 import { Category } from 'src/categories/entities/category.entity';
+import { Complaint } from 'src/complaints/entities/complaint.entity';
 import {
   Column,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
@@ -33,4 +35,7 @@ export class Subcategory {
   })
   @JoinColumn()
   category: Relation<Category>;
+
+  @OneToMany(() => Complaint, (complaint) => complaint.subcategory)
+  complaints: Relation<Complaint[]>;
 }
