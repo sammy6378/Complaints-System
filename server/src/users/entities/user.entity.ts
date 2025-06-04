@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { Check } from '../dto/create-user.dto';
 import { UserLog } from 'src/user-logs/entities/user-log.entity';
+import { Complaint } from 'src/complaints/entities/complaint.entity';
 
 @Entity('users')
 export class User {
@@ -45,4 +46,7 @@ export class User {
   // user and user-logs [1 to * relationships]
   @OneToMany(() => UserLog, (userLog) => userLog.user)
   userLogs: Relation<UserLog[]>;
+
+  @OneToMany(() => Complaint, (complaint) => complaint.user)
+  complaints: Relation<Complaint[]>;
 }
