@@ -2,6 +2,7 @@ import {
   IsEmail,
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsPhoneNumber,
   IsString,
   IsStrongPassword,
@@ -43,4 +44,8 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsStrongPassword()
   password: string;
+
+  @IsString()
+  @IsOptional()
+  refreshToken: string | null;
 }
