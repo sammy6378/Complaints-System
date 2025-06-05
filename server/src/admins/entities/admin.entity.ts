@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { AdminLog } from 'src/admin-logs/entities/admin-log.entity';
 import {
   Column,
@@ -21,8 +22,10 @@ export class Admin {
   @Column({ unique: true })
   email: string;
 
+  @Exclude()
   @Column()
   password: string;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
