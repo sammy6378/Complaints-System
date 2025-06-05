@@ -50,6 +50,8 @@ export class UsersService {
         'refreshToken',
         'status',
       ],
+      order: { created_at: 'DESC' },
+      take: 50, // Limit to 50 users
     });
   }
 

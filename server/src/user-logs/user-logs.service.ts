@@ -40,7 +40,10 @@ export class UserLogsService {
   }
 
   async findAll() {
-    return await this.logsRepository.find();
+    return await this.logsRepository.find({
+      order: { created_at: 'DESC' },
+      take: 50, // Limit to 50
+    });
   }
 
   async findOne(id: string): Promise<ApiResponse<UserLog> | string> {
