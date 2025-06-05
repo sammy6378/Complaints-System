@@ -5,6 +5,7 @@ import 'dotenv/config';
 import { ConfigService } from '@nestjs/config';
 import { AllExceptionsFilter } from './http-exceptions.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Request, Response } from 'express';
 
 async function bootstrap() {
   // create a NestJS application instance
@@ -37,6 +38,15 @@ async function bootstrap() {
   const PORT = configService.getOrThrow<number>('PORT');
   // const PORT = process.env.PORT || 3000;
   await app.listen(PORT);
+
+  // default route
+  app.getHttpAdapter().get('/', (req: Request, res: Response) => {
+    res.send(
+      `<h1>Welcome to the Complaints System API</h1>
+       <p>Visit <a href="https://complaints-system-production.up.railway.app/api/reference">Documentation</a> for API documentation.</p>
+        <p>Visit <a href="https://complaints-system-production.up.railway.app">Live</a> Deployed site</p>`,
+    );
+  });
 
   Logger.log(`Server is running on http://localhost:${PORT}`);
 }
