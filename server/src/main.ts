@@ -4,6 +4,7 @@ import { ValidationPipe, Logger } from '@nestjs/common';
 import 'dotenv/config';
 import { ConfigService } from '@nestjs/config';
 import { AllExceptionsFilter } from './http-exceptions.filter';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   // create a NestJS application instance
@@ -20,6 +21,16 @@ async function bootstrap() {
 
   // add global prefix for API routes
   app.setGlobalPrefix('api');
+
+  // swagger Ui
+  const config = new DocumentBuilder()
+    .setTitle('Complaints System')
+    .setDescription('API documentation for the Complaints System')
+    .setVersion('1.0')
+    .addTag('complaint')
+    .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/reference', app, documentFactory);
 
   // port configuration
   const configService = app.get(ConfigService);
