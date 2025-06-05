@@ -1,7 +1,14 @@
 import { Complaint } from 'src/complaints/entities/complaint.entity';
 import { Subcategory } from 'src/subcategories/entities/subcategory.entity';
-import { Column, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Relation,
+} from 'typeorm';
 
+@Entity('categories')
 export class Category {
   @PrimaryGeneratedColumn('uuid')
   category_id: string;
