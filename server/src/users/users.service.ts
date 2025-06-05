@@ -5,6 +5,8 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { ApiResponse, createResponse } from 'src/utils/responseHandler';
+import * as Bcrypt from 'bcrypt';
+import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class UsersService {
@@ -12,11 +14,24 @@ export class UsersService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<ApiResponse<User>> {
+  // hash password
+  private async hashPassword(password: string): Promise<string> {
+    const salt = await Bcrypt.genSalt(10);
+    return await Bcrypt.hash(password, salt);
+  }
+
+  async create(
+    createUserDto: CreateUserDto,
+  ): Promise<ApiResponse<Partial<User>>> {
+    const newUser = {
+      ...createUserDto,
+      password: await this.hashPassword(createUserDto.password),
+    };
     return await this.userRepository
-      .save(createUserDto)
+      .save(newUser)
       .then((user) => {
-        return createResponse(user, 'User created successfully');
+        const userWithoutPassword = instanceToPlain(user);
+        return createResponse(userWithoutPassword, 'User created successfully');
       })
       .catch((err) => {
         console.error('Error creating user:', err);
@@ -24,23 +39,29 @@ export class UsersService {
       });
   }
 
-  async findAll(full_name?: string) {
-    if (full_name) {
-      return await this.userRepository.find({
-        where: { full_name },
-      });
-    }
-    return await this.userRepository.find();
+  async findAll() {
+    return await this.userRepository.find({
+      select: [
+        'id',
+        'full_name',
+        'email',
+        'phone_number',
+        'username',
+        'refreshToken',
+        'status',
+      ],
+    });
   }
 
-  async findOne(id: string): Promise<ApiResponse<User> | string> {
+  async findOne(id: string): Promise<ApiResponse<Partial<User>> | string> {
     return await this.userRepository
       .findOneBy({ id })
       .then((user) => {
         if (!user) {
           return `User with id ${id} not found`;
         }
-        return createResponse(user, 'User found successfully');
+        const userWithoutPassword = instanceToPlain(user);
+        return createResponse(userWithoutPassword, 'User found successfully');
       })
       .catch((err) => {
         console.error('Error finding user', err);
@@ -51,7 +72,7 @@ export class UsersService {
   async update(
     id: string,
     updateUserDto: UpdateUserDto,
-  ): Promise<ApiResponse<User> | string> {
+  ): Promise<ApiResponse<Partial<User>> | string> {
     await this.userRepository.update(id, updateUserDto);
     return this.findOne(id);
   }
