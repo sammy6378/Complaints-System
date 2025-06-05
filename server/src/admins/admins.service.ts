@@ -5,6 +5,8 @@ import { Admin } from './entities/admin.entity';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 import { ApiResponse, createResponse } from 'src/utils/responseHandler';
+import * as Bcrypt from 'bcrypt';
+import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class AdminsService {
@@ -13,11 +15,27 @@ export class AdminsService {
     private readonly adminRepository: Repository<Admin>,
   ) {}
 
-  async create(createAdminDto: CreateAdminDto): Promise<ApiResponse<Admin>> {
+  // hash password
+  private async hashPassword(password: string): Promise<string> {
+    const salt = await Bcrypt.genSalt(10);
+    return await Bcrypt.hash(password, salt);
+  }
+
+  async create(
+    createAdminDto: CreateAdminDto,
+  ): Promise<ApiResponse<Partial<Admin>>> {
+    const newAdmin = {
+      ...createAdminDto,
+      password: await this.hashPassword(createAdminDto.password),
+    };
     return await this.adminRepository
-      .save(createAdminDto)
+      .save(newAdmin)
       .then((admin) => {
-        return createResponse(admin, 'Admin created successfully');
+        const adminWithoutPassword = instanceToPlain(admin);
+        return createResponse(
+          adminWithoutPassword,
+          'Admin created successfully',
+        );
       })
       .catch((err) => {
         console.error('Error creating admin:', err);
@@ -31,17 +49,20 @@ export class AdminsService {
         where: { fullName },
       });
     }
-    return await this.adminRepository.find();
+    return await this.adminRepository.find({
+      select: ['adminId', 'email', 'fullName', 'username', 'created_at'],
+    });
   }
 
-  async findOne(id: string): Promise<ApiResponse<Admin> | string> {
+  async findOne(id: string): Promise<ApiResponse<Partial<Admin>> | string> {
     return await this.adminRepository
       .findOneBy({ adminId: id })
       .then((admin) => {
         if (!admin) {
           return `Admin with id ${id} not found`;
         }
-        return createResponse(admin, 'Admin found successfully');
+        const adminWithoutPassword = instanceToPlain(admin);
+        return createResponse(adminWithoutPassword, 'Admin found successfully');
       })
       .catch((err) => {
         console.error('Error finding admin:', err);
@@ -52,7 +73,7 @@ export class AdminsService {
   async update(
     id: string,
     updateAdminDto: UpdateAdminDto,
-  ): Promise<ApiResponse<Admin> | string> {
+  ): Promise<ApiResponse<Partial<Admin>> | string> {
     await this.adminRepository.update(id, updateAdminDto);
     return this.findOne(id);
   }
