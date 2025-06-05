@@ -1,6 +1,13 @@
 import { Complaint } from 'src/complaints/entities/complaint.entity';
-import { Column, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Relation,
+} from 'typeorm';
 
+@Entity('states')
 export class State {
   @PrimaryGeneratedColumn('uuid')
   state_id: string;
