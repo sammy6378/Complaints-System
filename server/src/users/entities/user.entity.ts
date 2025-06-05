@@ -8,6 +8,7 @@ import {
 import { Check } from '../dto/create-user.dto';
 import { UserLog } from 'src/user-logs/entities/user-log.entity';
 import { Complaint } from 'src/complaints/entities/complaint.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity('users')
 export class User {
@@ -26,8 +27,12 @@ export class User {
   @Column()
   phone_number: string;
 
+  @Exclude()
   @Column()
   password: string;
+
+  @Column({ nullable: true, type: 'text', default: null })
+  refreshToken?: string | null;
 
   @Column({ type: 'enum', enum: Check, default: Check.ACTIVE })
   status: Check;
