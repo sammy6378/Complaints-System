@@ -19,6 +19,7 @@ import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { CacheableMemory } from 'cacheable';
 import { createKeyv, Keyv } from '@keyv/redis';
 import 'dotenv/config';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -57,7 +58,7 @@ import 'dotenv/config';
     AuthModule,
     SeedModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [
     {
       provide: 'APP_INTERCEPTOR',
