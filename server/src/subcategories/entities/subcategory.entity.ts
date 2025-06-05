@@ -2,6 +2,7 @@ import { Category } from 'src/categories/entities/category.entity';
 import { Complaint } from 'src/complaints/entities/complaint.entity';
 import {
   Column,
+  Entity,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -9,6 +10,7 @@ import {
   Relation,
 } from 'typeorm';
 
+@Entity('subcategories')
 export class Subcategory {
   @PrimaryGeneratedColumn('uuid')
   id: string;
