@@ -18,12 +18,13 @@ import { SeedModule } from './seed/seed.module';
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { CacheableMemory } from 'cacheable';
 import { createKeyv, Keyv } from '@keyv/redis';
+import 'dotenv/config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
     }),
     // global cache
     CacheModule.registerAsync({
