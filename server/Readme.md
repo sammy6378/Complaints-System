@@ -1,149 +1,172 @@
 
-<!-- stack -->
-# Stack
+# 🛠️ Complaint Management System Documentation
 
-- NestJS
-- NodeJS
-- Typescript
-- PostgresSQL
+## 📌 Introduction
 
+The **Complaint Management System** is a robust, scalable platform designed to facilitate the streamlined lodging, management, and resolution of user complaints. Built using modern technologies like **NestJS**, **Node.js**, **TypeScript**, and **PostgreSQL**, the system offers distinct modules for **Admins** and **Users**, along with a clear and maintainable architecture.
 
-# Functionalities
+This system empowers:
 
-## Admin Module Features Summary:
+* 👥 **Users** to lodge complaints and track resolutions
+* 🧑‍💼 **Admins** to manage categories, user feedback, and complaints effectively
 
-- Category Management : Admin can create, edit, and delete complaint categories.
-
-- Subcategory Management : Admin can create, edit, and delete complaint subcategories.
-- State Management : Admin can create, edit, and delete states associated with complaints.
-- Complaint Management : Admin can view complaints, update remarks, and manage their status (open/closed).
-- User Management : Admin can manage user information (view, edit, delete).
-- User Logs : Admin can view user login/logout history and activities.
-- Admin Logs : Admin can view their own login/logout history.
-- Change Password : Admin can update their own password.
-
-
-
-## User (Patient/Customer) Module Features Summary:
-- User Registration : Users can register in the system.
-
-- Forgot Password : Users can recover their password if forgotten.
-- Lodge Complaint : Users can lodge a complaint, specifying the category, subcategory, and state.
-- Complaint History : Users can view their previously lodged complaints and their status.
-- Profile Management : Users can manage their personal profile (update details, change password).
-- Change Password : Users can change their own password.
-
-
-
-## Suggestions for Enhancements:
-
-- SMS and Email Notifications : Notify users when their complaints are updated, resolved, or require further action.
-
-- Complaint Escalation : Implement a feature where users can escalate complaints if not resolved in a given time frame.
-- Feedback Mechanism : Allow users to provide feedback on how well their complaints were handled.
-- Priority Levels for Complaints : Add priority levels to complaints (e.g., Low, Medium, High) to ensure more urgent issues are handled first.
-- Analytics Dashboard : Provide admins with analytical tools to track complaints by category, status, user, or department.
-
-
-
-
-
-# Relationships
-
-### 🧩 **Entities and Relationships with Cardinalities**
-
-#### 1. **Admins**
-
-* **Primary Key**: `admin_id`
-* **Relationships**:
-
-  * One admin can have **many admin logs**.
-  * (1) Admin → (0..\*) Admin Logs
-
-#### 2. **Users**
-
-* **Primary Key**: `user_id`
-* **Relationships**:
-
-  * One user can lodge **many complaints**.
-  * One user can have **many user logs**.
-  * (1) User → (0..\*) Complaints
-  * (1) User → (0..\*) User Logs
-
-#### 3. **Complaints**
-
-* **Primary Key**: `complaint_id`
-* **Relationships**:
-
-  * Each complaint belongs to **one user**.
-  * Each complaint belongs to **one category** and **one subcategory**.
-  * Each complaint is associated with **one state**.
-  * (1) Complaint → (1) User
-  * (1) Complaint → (1) Category
-  * (1) Complaint → (1) Subcategory
-  * (1) Complaint → (1) State
-
-#### 4. **Categories**
-
-* **Primary Key**: `category_id`
-* **Relationships**:
-
-  * One category can have **many subcategories**.
-  * One category can be referenced by **many complaints**.
-  * (1) Category → (0..\*) Subcategories
-  * (1) Category → (0..\*) Complaints
-
-#### 5. **Subcategories**
-
-* **Primary Key**: `subcategory_id`
-* **Relationships**:
-
-  * Each subcategory belongs to **one category**.
-  * One subcategory can be referenced by **many complaints**.
-  * (1) Subcategory → (1) Category
-  * (1) Subcategory → (0..\*) Complaints
-
-#### 6. **States**
-
-* **Primary Key**: `state_id`
-* **Relationships**:
-
-  * One state can be associated with **many complaints**.
-  * (1) State → (0..\*) Complaints
-
-#### 7. **User Logs**
-
-* **Primary Key**: `log_id`
-* **Relationships**:
-
-  * Each log belongs to **one user**.
-  * (1) User Log → (1) User
-
-#### 8. **Admin Logs**
-
-* **Primary Key**: `log_id`
-* **Relationships**:
-
-  * Each log belongs to **one admin**.
-  * (1) Admin Log → (1) Admin
+This documentation outlines the stack, core functionalities, relationships, and suggestions for future improvements.
 
 ---
 
-### ✅ Summary of Cardinalities
+## 🧱 Tech Stack
 
-| Entity      | Related Entity | Cardinality |
-| ----------- | -------------- | ----------- |
-| Admin       | Admin Logs     | 1 to Many   |
-| User        | Complaints     | 1 to Many   |
-| User        | User Logs      | 1 to Many   |
-| Complaint   | Category       | Many to 1   |
-| Complaint   | Subcategory    | Many to 1   |
-| Complaint   | State          | Many to 1   |
-| Category    | Subcategories  | 1 to Many   |
-| Subcategory | Category       | Many to 1   |
-| Category    | Complaints     | 1 to Many   |
-| Subcategory | Complaints     | 1 to Many   |
-| State       | Complaints     | 1 to Many   |
+| Tech               | Description                                 |
+| ------------------ | ------------------------------------------- |
+| 🧪 **NestJS**      | Backend framework for scalable architecture |
+| ⚙️ **NodeJS**      | Server runtime environment                  |
+| ✨ **TypeScript**   | Typed superset of JavaScript                |
+| 🗄️ **PostgreSQL** | Relational database management system       |
 
 ---
 
+## 🚀 Features Overview
+
+### 👨‍💼 Admin Module
+
+* 🗂 **Category Management**: Create, edit, delete complaint categories
+* 🗂 **Subcategory Management**: Create, edit, delete complaint subcategories
+* 🗺 **State Management**: Manage states associated with complaints
+* 📋 **Complaint Management**: View complaints, update remarks, and manage status (Open/Closed)
+* 👤 **User Management**: View, edit, and delete user records
+* 📜 **User Logs**: Monitor user login/logout history and activities
+* 📜 **Admin Logs**: View admin login/logout records
+* 🔐 **Change Password**: Admins can update their passwords
+
+---
+
+### 🙋 User (Patient/Customer) Module
+
+* 📝 **Registration**: Users can create accounts
+* 🔐 **Forgot Password**: Password recovery via email (planned)
+* 📢 **Lodge Complaint**: Submit complaints with category, subcategory, and state
+* 📂 **Complaint History**: View submitted complaints and statuses
+* ⚙️ **Profile Management**: Update profile details and change password
+* 🔒 **Change Password**: Secure password update for users
+
+---
+
+## 💡 Suggested Enhancements
+
+These are upcoming or recommended features to make the system more powerful and user-friendly:
+
+* 📩 **SMS & Email Notifications**: Inform users of complaint updates, resolutions, or actions needed
+* ⏫ **Complaint Escalation**: Allow users to escalate complaints after a timeout
+* 💬 **Feedback Mechanism**: Users can rate or provide feedback on complaint handling
+* 🚦 **Priority Levels**: Assign Low, Medium, High priorities to complaints
+* 📊 **Admin Analytics Dashboard**: Visual insights and reports for complaints based on categories, departments, or resolution status
+
+---
+
+## 🧩 Entity Relationships
+
+### 📘 Overview
+
+The system comprises key entities with clearly defined relationships, forming the backbone of its data model.
+
+![DbImage](../Resources/complaints-db.png)
+
+#### 🔐 Admins
+
+* **PK**: `admin_id`
+* Relationships:
+
+  * 1 ➝ \* AdminLogs
+
+#### 👥 Users
+
+* **PK**: `user_id`
+* Relationships:
+
+  * 1 ➝ \* Complaints
+  * 1 ➝ \* UserLogs
+
+#### 🧾 Complaints
+
+* **PK**: `complaint_id`
+* Relationships:
+
+  * * ➝ 1 User
+  * * ➝ 1 Category
+  * * ➝ 1 Subcategory
+  * * ➝ 1 State
+
+#### 🗃 Categories
+
+* **PK**: `category_id`
+* Relationships:
+
+  * 1 ➝ \* Subcategories
+  * 1 ➝ \* Complaints
+
+#### 📂 Subcategories
+
+* **PK**: `subcategory_id`
+* Relationships:
+
+  * * ➝ 1 Category
+  * 1 ➝ \* Complaints
+
+#### 🗺 States
+
+* **PK**: `state_id`
+* Relationships:
+
+  * 1 ➝ \* Complaints
+
+#### 🧾 User Logs
+
+* **PK**: `log_id`
+* Relationships:
+
+  * * ➝ 1 User
+
+#### 🧾 Admin Logs
+
+* **PK**: `log_id`
+* Relationships:
+
+  * * ➝ 1 Admin
+
+---
+
+### 🔁 Entity Relationship Summary
+
+| 🧩 Entity   | 🔗 Related Entity | 🔢 Cardinality |
+| ----------- | ----------------- | -------------- |
+| Admin       | Admin Logs        | 1 to Many      |
+| User        | Complaints        | 1 to Many      |
+| User        | User Logs         | 1 to Many      |
+| Complaint   | Category          | Many to 1      |
+| Complaint   | Subcategory       | Many to 1      |
+| Complaint   | State             | Many to 1      |
+| Category    | Subcategories     | 1 to Many      |
+| Category    | Complaints        | 1 to Many      |
+| Subcategory | Category          | Many to 1      |
+| Subcategory | Complaints        | 1 to Many      |
+| State       | Complaints        | 1 to Many      |
+
+---
+
+## 🛡️ System Readiness
+
+### ✅ Implemented
+
+* 🔐 Authentication (Sign In, Sign Out)
+* ⚠️ Error Handling
+* 🔗 Entity Relationships
+* 🌱 Database Seeding
+* 🗄️ Database Integration (PostgreSQL)
+* 🧰 Services Layer & Business Logic
+* ✨ Caching using Redis
+
+### ✅ Quick Preview
+
+[http://localhost:8000/api/reference](http://localhost:8000/api/reference)
+  
+---
