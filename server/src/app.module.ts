@@ -18,13 +18,16 @@ import { SeedModule } from './seed/seed.module';
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { CacheableMemory } from 'cacheable';
 import { createKeyv, Keyv } from '@keyv/redis';
-import 'dotenv/config';
+import { RolesGuard } from './auth/guards/roles.guard';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
+    // global config
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
+      envFilePath: `.env`,
     }),
     // global cache
     CacheModule.registerAsync({
@@ -44,6 +47,27 @@ import 'dotenv/config';
         };
       },
     }),
+
+    // rate limiting
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          name: 'short',
+          ttl: 1000,
+          limit: 3,
+        },
+        {
+          name: 'medium',
+          ttl: 10000,
+          limit: 20,
+        },
+        {
+          name: 'long',
+          ttl: 60000,
+          limit: 100,
+        },
+      ],
+    }),
     UsersModule,
     AdminsModule,
     ComplaintsModule,
@@ -56,6 +80,7 @@ import 'dotenv/config';
     LogsModule,
     AuthModule,
     SeedModule,
+    MailModule,
   ],
   controllers: [],
   providers: [
@@ -67,6 +92,14 @@ import 'dotenv/config';
       provide: APP_GUARD,
       useClass: AtGuard, // protected routes
     },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard, // roles guard for role-based access control
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule implements NestModule {
@@ -74,16 +107,16 @@ export class AppModule implements NestModule {
     consumer
       .apply(LoggerMiddleware)
       .forRoutes(
-        '/users',
-        '/logs',
-        '/categories',
-        '/user_logs',
-        '/admin_logs',
-        '/subcategories',
-        '/states',
-        '/complaints',
-        '/admins',
-        '/auth',
+        '/api/users',
+        '/api/logs',
+        '/api/categories',
+        '/api/user_logs',
+        '/api/admin_logs',
+        '/api/subcategories',
+        '/api/states',
+        '/api/complaints',
+        '/api/admins',
+        '/api/auth',
       ); // Apply logger middleware to all routes
   }
 }
