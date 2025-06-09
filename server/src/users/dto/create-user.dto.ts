@@ -15,6 +15,12 @@ export enum Check {
   SUSPENDED = 'suspended',
 }
 
+export enum UserRole {
+  ADMIN = 'admin',
+  USER = 'user',
+  GUEST = 'guest',
+}
+
 export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
@@ -39,6 +45,9 @@ export class CreateUserDto {
   constructor() {
     this.status = Check.ACTIVE;
   }
+
+  @IsEnum(UserRole)
+  role: UserRole = UserRole.USER;
 
   @IsString()
   @IsNotEmpty()
