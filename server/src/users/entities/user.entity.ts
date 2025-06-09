@@ -5,7 +5,7 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
-import { Check } from '../dto/create-user.dto';
+import { Check, UserRole } from '../dto/create-user.dto';
 import { UserLog } from 'src/user-logs/entities/user-log.entity';
 import { Complaint } from 'src/complaints/entities/complaint.entity';
 import { Exclude } from 'class-transformer';
@@ -36,6 +36,9 @@ export class User {
 
   @Column({ type: 'enum', enum: Check, default: Check.ACTIVE })
   status: Check;
+
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
+  role: UserRole;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
