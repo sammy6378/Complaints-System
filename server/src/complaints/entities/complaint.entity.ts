@@ -44,7 +44,6 @@ export class Complaint {
   @ManyToOne(() => User, (user) => user.complaints, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
-    eager: true,
   })
   @JoinColumn()
   user: Relation<User>;
