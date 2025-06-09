@@ -43,14 +43,15 @@ export class AdminsService {
       });
   }
 
-  async findAll(fullName?: string): Promise<Admin[]> {
-    if (fullName) {
+  async findAll(email?: string): Promise<Admin[]> {
+    if (email) {
       return await this.adminRepository.find({
-        where: { fullName },
+        where: { email },
       });
     }
     return await this.adminRepository.find({
       select: ['adminId', 'email', 'fullName', 'username', 'created_at'],
+      take: 50,
     });
   }
 
