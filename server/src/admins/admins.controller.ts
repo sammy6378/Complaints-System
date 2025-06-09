@@ -11,19 +11,24 @@ import {
 import { AdminsService } from './admins.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
+import { Public } from 'src/auth/decorators/public.decorator';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { UserRole } from 'src/users/dto/create-user.dto';
 
+@Roles(UserRole.ADMIN)
 @Controller('admins')
 export class AdminsController {
   constructor(private readonly adminsService: AdminsService) {}
 
+  @Public()
   @Post()
   create(@Body() createAdminDto: CreateAdminDto) {
     return this.adminsService.create(createAdminDto);
   }
 
   @Get()
-  findAll(@Query('fullName') fullName?: string) {
-    return this.adminsService.findAll(fullName);
+  findAll(@Query('email') email?: string) {
+    return this.adminsService.findAll(email);
   }
 
   @Get(':id')
