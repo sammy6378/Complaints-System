@@ -9,7 +9,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   // create a NestJS application instance
   const app = await NestFactory.create(AppModule, {
-    logger: ['error', 'warn'], // configure logger levels
+    logger: ['error', 'warn', 'log'], // configure logger levels
   });
 
   // add global validation pipe
@@ -43,7 +43,23 @@ async function bootstrap() {
   // port configuration
   const configService = app.get(ConfigService);
   const PORT = configService.getOrThrow<number>('PORT');
-  // const PORT = process.env.PORT || 3000;
+
+  // cors configuration
+  const allowedOrigin =
+    process.env.NODE_ENV === 'production'
+      ? process.env.FRONTEND_URL // Deployed frontend URL
+      : 'http://localhost:3000'; // Local development URL
+
+  const corsOptions = {
+    origin: allowedOrigin, // Allow frontend
+    credentials: true, // Allow cookies, sessions
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders:
+      'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+  };
+
+  app.enableCors({ corsOptions });
+
   await app.listen(PORT);
 
   Logger.log(`Server is running on http://localhost:${PORT}`);
