@@ -18,6 +18,7 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { AtGuard } from 'src/auth/guards/at.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 
+@UseGuards(AtGuard, RolesGuard)
 @Controller('users')
 @UseInterceptors(CacheInterceptor)
 export class UsersController {
@@ -30,7 +31,6 @@ export class UsersController {
   }
 
   @Roles(UserRole.ADMIN)
-  @UseGuards(AtGuard, RolesGuard)
   @Get()
   findAll() {
     return this.usersService.findAll();
