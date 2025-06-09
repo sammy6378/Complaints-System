@@ -51,4 +51,17 @@ export class AuthController {
     }
     return await this.authService.refreshTokens(id, user.refreshToken);
   }
+
+  // auth/changePassword
+  @Post('changepassword/:id')
+  async changePassword(
+    @Param('id') id: string,
+    @Body() body: { oldPassword: string; newPassword: string },
+  ) {
+    return await this.authService.changePassword(
+      id,
+      body.oldPassword,
+      body.newPassword,
+    );
+  }
 }
