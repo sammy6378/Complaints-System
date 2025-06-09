@@ -15,8 +15,8 @@ import { Public } from 'src/auth/decorators/public.decorator';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { UserRole } from 'src/users/dto/create-user.dto';
 
-@Roles(UserRole.ADMIN)
 @Controller('admins')
+@Roles(UserRole.ADMIN)
 export class AdminsController {
   constructor(private readonly adminsService: AdminsService) {}
 
