@@ -33,7 +33,6 @@ export class UserLog {
   //   relatioships
   // user and user-logs [1 to * relationships]
   @ManyToOne(() => User, (user) => user.userLogs, {
-    eager: true,
     onDelete: 'CASCADE',
   })
   @JoinColumn()
