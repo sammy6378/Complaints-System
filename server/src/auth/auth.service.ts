@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -6,6 +10,7 @@ import * as Bycrypt from 'bcrypt';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { currentUser } from 'src/types/jwtUser';
 
 @Injectable()
 export class AuthService {
@@ -48,15 +53,28 @@ export class AuthService {
     };
   }
 
-  private async hashData(data: string): Promise<string> {
+  private async hashPassword(password: string): Promise<string> {
     const salt = await Bycrypt.genSalt(10);
-    return await Bycrypt.hash(data, salt);
+    return await Bycrypt.hash(password, salt);
+  }
+
+  // compare passwords
+  private async comparePasswords(
+    oldPassword: string,
+    password: string,
+  ): Promise<boolean> {
+    const res = await Bycrypt.compare(oldPassword, password);
+    if (res) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   // save refresh token in the database
   private async saveRefreshToken(userId: string, refreshToken: string) {
     // hash the refresh token
-    const hashedRefreshToken = await this.hashData(refreshToken);
+    const hashedRefreshToken = await this.hashPassword(refreshToken);
 
     await this.userRepository.update(userId, {
       refreshToken: hashedRefreshToken,
@@ -137,5 +155,42 @@ export class AuthService {
       await this.createTokens(user.id, user.email);
 
     return { accessToken, refreshToken: newRefreshToken };
+  }
+
+  // validate user
+  async validateJwtUser(userId: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    const currentUser: currentUser = { id: user.id, role: user.role };
+
+    return currentUser;
+  }
+
+  // change password
+  async changePassword(
+    userId: string,
+    oldPassword: string,
+    newPassword: string,
+  ) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    // validate the old password
+    const isValid = await this.comparePasswords(oldPassword, user.password);
+    if (!isValid) {
+      throw new UnauthorizedException('Incorrect password');
+    }
+
+    // hash the new password
+    const hashedPassword = await this.hashPassword(newPassword);
+
+    // save password
+    await this.userRepository.update(userId, { password: hashedPassword });
+
+    return { message: 'Password changed successfuly' };
   }
 }
