@@ -4,7 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../auth.service';
 
-type JWTPayload = {
+export type JWTPayload = {
   sub: string; // User ID
   email: string; // User email
 };
