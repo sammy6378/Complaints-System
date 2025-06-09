@@ -40,7 +40,7 @@ export class UsersService {
   }
 
   async findAll() {
-    return await this.userRepository.find({
+    const users = await this.userRepository.find({
       select: [
         'id',
         'full_name',
@@ -49,10 +49,11 @@ export class UsersService {
         'username',
         'refreshToken',
         'status',
+        'role',
       ],
-      order: { created_at: 'DESC' },
-      take: 50, // Limit to 50 users
+      take: 50,
     });
+    return users;
   }
 
   async findOne(id: string): Promise<ApiResponse<Partial<User>> | string> {
