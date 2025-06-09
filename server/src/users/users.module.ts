@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Complaint } from 'src/complaints/entities/complaint.entity';
 import { UserLog } from 'src/user-logs/entities/user-log.entity';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
 
 @Module({
   imports: [
@@ -13,6 +14,6 @@ import { UserLog } from 'src/user-logs/entities/user-log.entity';
     TypeOrmModule.forFeature([User, Complaint, UserLog]),
   ],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersService, RolesGuard],
 })
 export class UsersModule {}
