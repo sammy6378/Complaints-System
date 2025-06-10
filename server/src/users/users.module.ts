@@ -7,6 +7,7 @@ import { User } from './entities/user.entity';
 import { Complaint } from 'src/complaints/entities/complaint.entity';
 import { UserLog } from 'src/user-logs/entities/user-log.entity';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { MailService } from 'src/mail/mail.service';
 
 @Module({
   imports: [
@@ -14,6 +15,6 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
     TypeOrmModule.forFeature([User, Complaint, UserLog]),
   ],
   controllers: [UsersController],
-  providers: [UsersService, RolesGuard],
+  providers: [UsersService, RolesGuard, MailService],
 })
 export class UsersModule {}
