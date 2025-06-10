@@ -7,11 +7,13 @@ import { Injectable } from '@nestjs/common';
 import { ApiResponse, createResponse } from 'src/utils/responseHandler';
 import * as Bcrypt from 'bcrypt';
 import { instanceToPlain } from 'class-transformer';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+    private readonly mailService: MailService,
   ) {}
 
   // hash password
@@ -27,19 +29,42 @@ export class UsersService {
       ...createUserDto,
       password: await this.hashPassword(createUserDto.password),
     };
-    return await this.userRepository
-      .save(newUser)
-      .then((user) => {
-        const userWithoutPassword = instanceToPlain(user);
-        return createResponse(userWithoutPassword, 'User created successfully');
-      })
-      .catch((err) => {
-        console.error('Error creating user:', err);
-        throw new Error('Failed to create user');
-      });
+
+    try {
+      const user = await this.userRepository.save(newUser);
+      const userWithoutPassword = instanceToPlain(user);
+
+      const data = {
+        dashboardUrl: 'http://localhost:8000',
+        email: user.email,
+      };
+
+      try {
+        await this.mailService.sendEmail({
+          subject: 'Account Created',
+          template: 'welcome.ejs',
+          recipients: user.email,
+          data,
+        });
+      } catch (emailError) {
+        // Log the error without failing the whole process
+        console.error('User created but failed to send email:', emailError);
+        // Optionally notify admin or mark user for retry email later
+      }
+
+      return createResponse(userWithoutPassword, 'User created successfully');
+    } catch (err) {
+      console.error('Error creating user:', err);
+      throw new Error('Failed to create user');
+    }
   }
 
-  async findAll() {
+  async findAll(email?: string) {
+    if (email) {
+      return await this.userRepository.find({
+        where: { email: email },
+      });
+    }
     const users = await this.userRepository.find({
       select: [
         'id',
