@@ -6,10 +6,15 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { ComplaintsService } from './complaints.service';
 import { CreateComplaintDto } from './dto/create-complaint.dto';
 import { UpdateComplaintDto } from './dto/update-complaint.dto';
+import { UseGuards } from '@nestjs/common';
+import { PoliciesGuard } from 'src/casl/guards/policies.guard';
+import { checkpolicies } from 'src/casl/decorators/check-policies.decorator';
+import { Action } from 'src/casl/action.enum';
 
 @Controller('complaints')
 export class ComplaintsController {
@@ -19,7 +24,11 @@ export class ComplaintsController {
   create(@Body() createComplaintDto: CreateComplaintDto) {
     return this.complaintsService.create(createComplaintDto);
   }
-
+  @UseGuards(PoliciesGuard)
+  @checkpolicies(
+    (ability) =>
+      ability.can(Action.Manage, 'All') || ability.can(Action.Read, 'User'),
+  )
   @Get()
   findAll() {
     return this.complaintsService.findAll();
@@ -28,6 +37,14 @@ export class ComplaintsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.complaintsService.findOne(id);
+  }
+
+  @Get()
+  findByStatus(@Query() query: CreateComplaintDto) {
+    if (query.complaint_status) {
+      return this.complaintsService.findByStatus(query.complaint_status);
+    }
+    return this.complaintsService.findAll(); // fallback to list all
   }
 
   @Patch(':id')
