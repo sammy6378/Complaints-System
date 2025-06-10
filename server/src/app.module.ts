@@ -21,6 +21,8 @@ import { createKeyv, Keyv } from '@keyv/redis';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { MailModule } from './mail/mail.module';
+import { AppController } from './app.controller';
+import { CaslModule } from './casl/casl.module';
 
 @Module({
   imports: [
@@ -81,8 +83,9 @@ import { MailModule } from './mail/mail.module';
     AuthModule,
     SeedModule,
     MailModule,
+    CaslModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [
     {
       provide: 'APP_INTERCEPTOR',
