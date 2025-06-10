@@ -58,6 +58,7 @@ export class ComplaintsService {
   async findAll(): Promise<Complaint[]> {
     return await this.complaintRepository.find({
       relations: ['user', 'category', 'subcategory', 'state'],
+      take: 20,
     });
   }
 
@@ -72,6 +73,20 @@ export class ComplaintsService {
     }
 
     return complaint;
+  }
+
+  // find by status
+  async findByStatus(status: string): Promise<Complaint[]> {
+    const complaints = await this.complaintRepository.find({
+      where: { complaint_status: status as Complaint['complaint_status'] },
+      relations: ['user', 'category', 'subcategory', 'state'],
+    });
+
+    if (complaints.length === 0) {
+      throw new NotFoundException(`No complaints found with status ${status}`);
+    }
+
+    return complaints;
   }
 
   async update(
