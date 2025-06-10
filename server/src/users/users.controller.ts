@@ -8,6 +8,7 @@ import {
   Delete,
   UseInterceptors,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, UserRole } from './dto/create-user.dto';
@@ -32,8 +33,8 @@ export class UsersController {
 
   @Roles(UserRole.ADMIN)
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Query('email') email?: string) {
+    return this.usersService.findAll(email);
   }
 
   @Roles(UserRole.ADMIN, UserRole.USER)
