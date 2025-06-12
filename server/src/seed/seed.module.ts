@@ -3,27 +3,27 @@ import { SeedService } from './seed.service';
 import { SeedController } from './seed.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
-import { UserLog } from 'src/user-logs/entities/user-log.entity';
-import { Admin } from 'src/admins/entities/admin.entity';
-import { AdminLog } from 'src/admin-logs/entities/admin-log.entity';
 import { Complaint } from 'src/complaints/entities/complaint.entity';
 import { Category } from 'src/categories/entities/category.entity';
 import { Subcategory } from 'src/subcategories/entities/subcategory.entity';
-import { State } from 'src/states/entities/state.entity';
 import { DatabaseModule } from 'src/database/database.module';
+import { AuditLog } from 'src/audit-logs/entities/audit-log.entity';
+import { Notification } from 'src/notifications/entities/notification.entity';
+import { Feedback } from 'src/feedbacks/entities/feedback.entity';
+import { ComplaintHistory } from 'src/complaint-history/entities/complaint-history.entity';
 
 @Module({
   imports: [
     DatabaseModule,
     TypeOrmModule.forFeature([
       User,
-      UserLog,
-      Admin,
-      AdminLog,
       Complaint,
       Category,
       Subcategory,
-      State,
+      AuditLog,
+      Notification,
+      Feedback,
+      ComplaintHistory,
     ]),
   ],
   providers: [SeedService],

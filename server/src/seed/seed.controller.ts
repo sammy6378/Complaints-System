@@ -1,6 +1,10 @@
 import { Controller, Post, HttpStatus, HttpCode, Logger } from '@nestjs/common';
 import { SeedService } from './seed.service';
 
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+
+@ApiTags('seed')
+@ApiBearerAuth()
 @Controller('seed')
 export class SeedController {
   private readonly logger = new Logger(SeedController.name);
