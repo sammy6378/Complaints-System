@@ -72,7 +72,7 @@ export class UsersService {
         'email',
         'phone_number',
         'username',
-        'refreshToken',
+        'refresh_token',
         'status',
         'role',
       ],

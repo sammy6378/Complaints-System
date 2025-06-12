@@ -18,9 +18,12 @@ import { Public } from 'src/auth/decorators/public.decorator';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { AtGuard } from 'src/auth/guards/at.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 
-@UseGuards(AtGuard, RolesGuard)
 @Controller('users')
+@ApiTags('users')
+@UseGuards(AtGuard, RolesGuard)
+@ApiBearerAuth()
 @UseInterceptors(CacheInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -32,6 +35,12 @@ export class UsersController {
   }
 
   @Roles(UserRole.ADMIN)
+  @ApiQuery({
+    name: 'email',
+    required: false,
+    description: 'Filter users by email address',
+    type: String,
+  })
   @Get()
   findAll(@Query('email') email?: string) {
     return this.usersService.findAll(email);
