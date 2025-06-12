@@ -11,6 +11,12 @@ import { CreateAuthDto } from './dto/create-auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { currentUser } from 'src/types/jwtUser';
+import { MailService } from 'src/mail/mail.service';
+
+interface decodedToken {
+  userId: string;
+  email: string;
+}
 
 @Injectable()
 export class AuthService {
@@ -18,7 +24,46 @@ export class AuthService {
     @InjectRepository(User) private userRepository: Repository<User>,
     private jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly mailService: MailService,
   ) {}
+
+  // token for reset email
+  private async createResetToken(userId: string, email: string) {
+    const [token] = await Promise.all([
+      this.jwtService.signAsync(
+        { userId, email },
+        {
+          secret: this.configService.getOrThrow<string>('JWT_ACCESS_SECRET'),
+          expiresIn: this.configService.getOrThrow<string>(
+            'JWT_ACCESS_EXPIRATION_TIME',
+          ),
+        },
+      ),
+    ]);
+    // return the token
+    return {
+      resetToken: token,
+    };
+  }
+
+  // verify token
+  private async verifyToken(token: string) {
+    try {
+      // verify the token
+      const resetToken: decodedToken = await this.jwtService.verifyAsync(
+        token,
+        {
+          secret: this.configService.getOrThrow<string>('JWT_ACCESS_SECRET'),
+        },
+      );
+
+      // return the decoded token
+      return resetToken;
+    } catch (error) {
+      console.log('An error occured', error);
+      throw new UnauthorizedException('Invalid or expired token');
+    }
+  }
 
   // create tokens
   private async createTokens(userId: string, email: string) {
@@ -77,7 +122,7 @@ export class AuthService {
     const hashedRefreshToken = await this.hashPassword(refreshToken);
 
     await this.userRepository.update(userId, {
-      refreshToken: hashedRefreshToken,
+      refresh_token: hashedRefreshToken,
     });
   }
 
@@ -119,7 +164,7 @@ export class AuthService {
   async signOut(userId: string) {
     // refresh token to null
     const res = await this.userRepository.update(userId, {
-      refreshToken: null,
+      refresh_token: null,
     });
 
     if (res.affected === 0) {
@@ -139,12 +184,12 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
     // check if refresh token is valid
-    if (!user.refreshToken) {
+    if (!user.refresh_token) {
       throw new NotFoundException('Refresh token not found');
     }
     const isRefreshTokenValid = await Bycrypt.compare(
       refreshToken,
-      user.refreshToken,
+      user.refresh_token,
     );
     if (!isRefreshTokenValid) {
       throw new NotFoundException('Invalid refresh token');
@@ -192,5 +237,71 @@ export class AuthService {
     await this.userRepository.update(userId, { password: hashedPassword });
 
     return { message: 'Password changed successfuly' };
+  }
+
+  // forgot password
+  async forgotPassword(email: string) {
+    // find user by email
+    const user = await this.userRepository.findOne({
+      where: { email },
+      select: ['id', 'email', 'username'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // create token with user id and email
+    const { resetToken } = await this.createResetToken(user.id, user.email);
+
+    const data = {
+      name: user.username,
+      email: user.email,
+      resetToken,
+      resetUrl: `${this.configService.getOrThrow<string>('FRONTEND_URL')}/resetPassword/${resetToken}`,
+    };
+
+    // send email with reset link
+    await this.mailService
+      .sendEmail({
+        subject: 'Password Reset Request',
+        recipients: data.email,
+        template: 'reset-password.ejs',
+        data,
+      })
+      .then(() => {
+        console.log('Password reset email sent successfully');
+      })
+      .catch((error) => {
+        throw new Error(`Failed to send password reset email: ${error}`);
+      });
+
+    return {
+      message: 'Password reset link sent to your email',
+      userId: user.id,
+      email: user.email,
+    };
+  }
+
+  // reset password
+  async resetPassword(token: string, newPassword: string) {
+    // verify the token
+    const res = await this.verifyToken(token);
+    const user = await this.userRepository.findOne({
+      where: { id: res.userId, email: res.email },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // hash the new password
+    const hashedPassword = await this.hashPassword(newPassword);
+
+    // update the password in the database
+    await this.userRepository.update(user.id, { password: hashedPassword });
+
+    return {
+      message: `Password reset successful for ${user.email}`,
+    };
   }
 }

@@ -12,6 +12,7 @@ import { CreateAuthDto } from './dto/create-auth.dto';
 import { Public } from './decorators/public.decorator';
 import { AtGuard } from './guards/at.guard';
 import { RtGuard } from './guards/rt.guard';
+import { ApiTags } from '@nestjs/swagger';
 
 export interface RequestWithUser extends Request {
   user: {
@@ -21,6 +22,7 @@ export interface RequestWithUser extends Request {
   };
 }
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -63,5 +65,22 @@ export class AuthController {
       body.oldPassword,
       body.newPassword,
     );
+  }
+
+  // auth/forgotPassword
+  @Public()
+  @Post('forgotPassword')
+  async forgotPassword(@Body('email') email: string) {
+    return await this.authService.forgotPassword(email);
+  }
+
+  // auth/resetPassword
+  @Public()
+  @Post('resetPassword/:token')
+  async resetPassword(
+    @Param('token') token: string,
+    @Body('newPassword') newPassword: string,
+  ) {
+    return await this.authService.resetPassword(token, newPassword);
   }
 }
