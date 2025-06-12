@@ -74,7 +74,7 @@
           explore your dashboard to see how ResolveIt streamlines the process
           for you.
         </p>
-        <a href="<{{ data.dashboardUrl }}>" class="button">Go to Dashboard</a>
+        <a href="<%= data.dashboardUrl %>" class="button">Go to Dashboard</a>
       </div>
       <div
         style="
@@ -86,7 +86,7 @@
           color: #333;
         "
       >
-        This email was intended for <strong><{{ data.email }}></strong>.
+        This email was intended for <strong><%= data.email %></strong>.
       </div>
       <div class="footer">
         &copy; <%= new Date().getFullYear() %> ResolveIt. All rights
