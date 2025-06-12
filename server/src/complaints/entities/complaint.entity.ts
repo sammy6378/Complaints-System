@@ -3,6 +3,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
@@ -13,7 +14,8 @@ import {
 import { User } from 'src/users/entities/user.entity';
 import { Category } from 'src/categories/entities/category.entity';
 import { Subcategory } from 'src/subcategories/entities/subcategory.entity';
-import { State } from 'src/states/entities/state.entity';
+import { ComplaintHistory } from 'src/complaint-history/entities/complaint-history.entity';
+import { Feedback } from 'src/feedbacks/entities/feedback.entity';
 
 @Entity('complaints')
 export class Complaint {
@@ -40,6 +42,9 @@ export class Complaint {
   })
   priority: complaint_priority;
 
+  @Column({ nullable: true })
+  location: string;
+
   //   relations
   @ManyToOne(() => User, (user) => user.complaints, {
     onDelete: 'CASCADE',
@@ -62,13 +67,13 @@ export class Complaint {
     eager: true,
   })
   @JoinColumn()
-  subcategory: Relation<Subcategory>;
+  subcategory?: Relation<Subcategory>;
 
-  @ManyToOne(() => State, (state) => state.complaints, {
-    onDelete: 'SET NULL',
-    onUpdate: 'CASCADE',
-    eager: true,
-  })
-  @JoinColumn()
-  state: Relation<State>;
+  // History relation
+  @OneToMany(() => ComplaintHistory, (history) => history.complaint)
+  history: Relation<ComplaintHistory[]>;
+
+  // Feedback relation
+  @OneToMany(() => Feedback, (feedback) => feedback.complaint)
+  feedbacks: Relation<Feedback[]>;
 }

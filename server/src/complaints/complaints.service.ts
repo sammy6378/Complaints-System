@@ -1,5 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateComplaintDto } from './dto/create-complaint.dto';
+import {
+  complaint_priority,
+  complaint_status,
+  CreateComplaintDto,
+} from './dto/create-complaint.dto';
 import { UpdateComplaintDto } from './dto/update-complaint.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Complaint } from './entities/complaint.entity';
@@ -7,7 +11,9 @@ import { Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Category } from 'src/categories/entities/category.entity';
 import { Subcategory } from 'src/subcategories/entities/subcategory.entity';
-import { State } from 'src/states/entities/state.entity';
+import { CreatePaginationDto } from 'src/pagination/dto/create-pagination.dto';
+import { Paginated } from 'src/pagination/pagination.interface';
+import { PaginationProvider } from 'src/pagination/pagination.provider';
 
 @Injectable()
 export class ComplaintsService {
@@ -20,8 +26,7 @@ export class ComplaintsService {
     private categoryRepository: Repository<Category>,
     @InjectRepository(Subcategory)
     private subcategoryRepository: Repository<Subcategory>,
-    @InjectRepository(State)
-    private stateRepository: Repository<State>,
+    private readonly paginationProvider: PaginationProvider,
   ) {}
 
   async create(createComplaintDto: CreateComplaintDto): Promise<Complaint> {
@@ -34,13 +39,10 @@ export class ComplaintsService {
     const subcategory = await this.subcategoryRepository.findOneBy({
       id: createComplaintDto.subcategoryId,
     });
-    const state = await this.stateRepository.findOneBy({
-      state_id: createComplaintDto.stateId,
-    });
 
-    if (!user || !category || !subcategory || !state) {
+    if (!user || !category || !subcategory) {
       throw new NotFoundException(
-        'Invalid references: user, category, subcategory, or state not found',
+        'Invalid references: user, category, subcategory,not found',
       );
     }
 
@@ -49,23 +51,24 @@ export class ComplaintsService {
       user,
       category,
       subcategory,
-      state,
     });
 
     return await this.complaintRepository.save(complaint);
   }
 
-  async findAll(): Promise<Complaint[]> {
-    return await this.complaintRepository.find({
-      relations: ['user', 'category', 'subcategory', 'state'],
-      take: 20,
-    });
+  async findAll(
+    paginatedQuery: CreatePaginationDto,
+  ): Promise<Paginated<Complaint>> {
+    return await this.paginationProvider.paginatedQuery(
+      paginatedQuery,
+      this.complaintRepository,
+    );
   }
 
   async findOne(id: string): Promise<Complaint> {
     const complaint = await this.complaintRepository.findOne({
       where: { complaint_id: id },
-      relations: ['user', 'category', 'subcategory', 'state'],
+      relations: ['user', 'category', 'subcategory'],
     });
 
     if (!complaint) {
@@ -75,24 +78,32 @@ export class ComplaintsService {
     return complaint;
   }
 
-  // find by status
-  async findByStatus(status: string): Promise<Complaint[]> {
-    const complaints = await this.complaintRepository.find({
-      where: { complaint_status: status as Complaint['complaint_status'] },
-      relations: ['user', 'category', 'subcategory', 'state'],
-    });
-
-    if (complaints.length === 0) {
-      throw new NotFoundException(`No complaints found with status ${status}`);
+  // Find complaints filtered by optional status and priority
+  async findFiltered(
+    status?: complaint_status,
+    priority?: complaint_priority,
+  ): Promise<Complaint[]> {
+    interface FilterOptions {
+      status?: complaint_status;
+      priority?: complaint_priority;
     }
 
-    return complaints;
+    const filterOptions: FilterOptions = {};
+    if (status) filterOptions.status = status;
+    if (priority) filterOptions.priority = priority;
+
+    return await this.complaintRepository.find({
+      where: {
+        ...(status && { complaint_status: status }),
+        ...(priority && { priority }),
+      },
+    });
   }
 
   async update(
     id: string,
     updateComplaintDto: UpdateComplaintDto,
-  ): Promise<Complaint> {
+  ): Promise<Complaint | string> {
     const complaint = await this.complaintRepository.findOneBy({
       complaint_id: id,
     });
@@ -101,8 +112,11 @@ export class ComplaintsService {
       throw new NotFoundException(`Complaint with id ${id} not found`);
     }
 
-    const updatedComplaint = Object.assign(complaint, updateComplaintDto);
-    return await this.complaintRepository.save(updatedComplaint);
+    await this.complaintRepository.update(id, updateComplaintDto);
+
+    // save complaint history
+
+    return await this.findOne(id);
   }
 
   async remove(id: string): Promise<string> {

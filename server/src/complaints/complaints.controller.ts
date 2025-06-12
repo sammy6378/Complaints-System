@@ -9,29 +9,44 @@ import {
   Query,
 } from '@nestjs/common';
 import { ComplaintsService } from './complaints.service';
-import { CreateComplaintDto } from './dto/create-complaint.dto';
+import {
+  complaint_priority,
+  complaint_status,
+  CreateComplaintDto,
+} from './dto/create-complaint.dto';
 import { UpdateComplaintDto } from './dto/update-complaint.dto';
 import { UseGuards } from '@nestjs/common';
-import { PoliciesGuard } from 'src/casl/guards/policies.guard';
-import { checkpolicies } from 'src/casl/decorators/check-policies.decorator';
-import { Action } from 'src/casl/action.enum';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { UserRole } from 'src/users/dto/create-user.dto';
+import { CreatePaginationDto } from 'src/pagination/dto/create-pagination.dto';
 
+@UseGuards(RolesGuard)
+@ApiTags('complaints')
+@ApiBearerAuth()
 @Controller('complaints')
 export class ComplaintsController {
   constructor(private readonly complaintsService: ComplaintsService) {}
 
+  @Roles(UserRole.ADMIN, UserRole.USER)
   @Post()
   create(@Body() createComplaintDto: CreateComplaintDto) {
     return this.complaintsService.create(createComplaintDto);
   }
-  @UseGuards(PoliciesGuard)
-  @checkpolicies(
-    (ability) =>
-      ability.can(Action.Manage, 'All') || ability.can(Action.Read, 'User'),
-  )
+
+  @Roles(UserRole.ADMIN)
   @Get()
-  findAll() {
-    return this.complaintsService.findAll();
+  findAll(@Query() paginatedQuery: CreatePaginationDto) {
+    return this.complaintsService.findAll(paginatedQuery);
+  }
+
+  @Get('qry')
+  findFiltered(
+    @Query('complaint_status') complaint_status?: complaint_status,
+    @Query('priority') priority?: complaint_priority,
+  ) {
+    return this.complaintsService.findFiltered(complaint_status, priority);
   }
 
   @Get(':id')
@@ -39,14 +54,7 @@ export class ComplaintsController {
     return this.complaintsService.findOne(id);
   }
 
-  @Get()
-  findByStatus(@Query() query: CreateComplaintDto) {
-    if (query.complaint_status) {
-      return this.complaintsService.findByStatus(query.complaint_status);
-    }
-    return this.complaintsService.findAll(); // fallback to list all
-  }
-
+  @Roles(UserRole.ADMIN, UserRole.USER)
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -55,6 +63,7 @@ export class ComplaintsController {
     return this.complaintsService.update(id, updateComplaintDto);
   }
 
+  @Roles(UserRole.ADMIN)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.complaintsService.remove(id);
