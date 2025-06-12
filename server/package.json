@@ -9,7 +9,7 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "build": "nest build && pnpm run copy:templates",
+    "build": "nest build",
     "copy:templates": "cpx \"mails/**/*\" dist/mails",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
@@ -44,6 +44,7 @@
     "class-validator": "^0.14.2",
     "dotenv": "^16.5.0",
     "ejs": "^3.1.10",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.1",
     "nodemailer": "^7.0.3",
