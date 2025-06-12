@@ -1,12 +1,8 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
-import { AdminsModule } from './admins/admins.module';
 import { ComplaintsModule } from './complaints/complaints.module';
 import { CategoriesModule } from './categories/categories.module';
 import { SubcategoriesModule } from './subcategories/subcategories.module';
-import { StatesModule } from './states/states.module';
-import { UserLogsModule } from './user-logs/user-logs.module';
-import { AdminLogsModule } from './admin-logs/admin-logs.module';
 import { DatabaseModule } from './database/database.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LogsModule } from './logs/logs.module';
@@ -21,8 +17,12 @@ import { createKeyv, Keyv } from '@keyv/redis';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { MailModule } from './mail/mail.module';
-import { AppController } from './app.controller';
 import { CaslModule } from './casl/casl.module';
+import { AuditLogsModule } from './audit-logs/audit-logs.module';
+import { ComplaintHistoryModule } from './complaint-history/complaint-history.module';
+import { FeedbacksModule } from './feedbacks/feedbacks.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { PaginationModule } from './pagination/pagination.module';
 
 @Module({
   imports: [
@@ -71,21 +71,22 @@ import { CaslModule } from './casl/casl.module';
       ],
     }),
     UsersModule,
-    AdminsModule,
     ComplaintsModule,
     CategoriesModule,
     SubcategoriesModule,
-    StatesModule,
-    UserLogsModule,
-    AdminLogsModule,
     DatabaseModule,
     LogsModule,
     AuthModule,
     SeedModule,
     MailModule,
     CaslModule,
+    AuditLogsModule,
+    ComplaintHistoryModule,
+    FeedbacksModule,
+    NotificationsModule,
+    PaginationModule,
   ],
-  controllers: [AppController],
+  controllers: [],
   providers: [
     {
       provide: 'APP_INTERCEPTOR',
@@ -101,7 +102,7 @@ import { CaslModule } from './casl/casl.module';
     },
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: ThrottlerGuard, // rate limiting guard
     },
   ],
 })
@@ -113,12 +114,12 @@ export class AppModule implements NestModule {
         '/api/users',
         '/api/logs',
         '/api/categories',
-        '/api/user_logs',
-        '/api/admin_logs',
         '/api/subcategories',
-        '/api/states',
         '/api/complaints',
-        '/api/admins',
+        '/api/audit-logs',
+        '/api/complaint-history',
+        '/api/feedbacks',
+        '/api/notifications',
         '/api/auth',
       ); // Apply logger middleware to all routes
   }
