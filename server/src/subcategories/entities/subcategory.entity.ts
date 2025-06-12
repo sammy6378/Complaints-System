@@ -16,7 +16,7 @@ export class Subcategory {
   id: string;
 
   @Column({ nullable: false })
-  subcategoryName: string;
+  subcategory_name: string;
 
   @Column({ type: 'text', nullable: false })
   description: string;
