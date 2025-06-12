@@ -1,7 +1,22 @@
 
 services:
+  complaints-management-db:
+    image: postgres:15-alpine
+    container_name: complaints-management-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=complaints
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    volumes:
+     - pgdata:/var/lib/postgresql/data
 
- redis:
+  redis:
       image: redis:8.0-alpine
       container_name: redis-cache
       restart: unless-stopped
@@ -13,7 +28,45 @@ services:
       networks:
         - app-network
 
+  complaints-management:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: complaints-management
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - NODE_ENV=development
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=complaints
+      - POSTGRES_HOST=complaints-management-db
+      - DB_SYNC=true
+      - DB_LOGGING=true
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+      - JWT_ACCESS_EXPIRATION_TIME=1h
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - JWT_REFRESH_EXPIRATION_TIME=7d
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_EMAIL=${SMTP_EMAIL}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASS}
+      - APP_NAME=${APP_NAME}
+      - FRONTEND_URL=${FRONTEND_URL}
+  
+    networks:
+      - app-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+
 volumes:
+  pgdata:
+    name: complaints-management-db-data
+    driver: local
   redis-data:
     name: redis-cache-data
     driver: local
