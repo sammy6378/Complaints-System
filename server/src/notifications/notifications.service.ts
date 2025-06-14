@@ -6,7 +6,6 @@ import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { Notification } from './entities/notification.entity';
 import { User } from 'src/users/entities/user.entity';
 import { MailService } from 'src/mail/mail.service';
-import { Address } from 'nodemailer/lib/mailer';
 
 @Injectable()
 export class NotificationsService {
@@ -37,12 +36,8 @@ export class NotificationsService {
     });
 
     const subject = notification.title;
-    const recipients: Address[] = [
-      {
-        name: notification.user.full_name,
-        address: notification.user.email,
-      },
-    ];
+    const recipients = notification.user.full_name;
+
     const data = {
       email: recipients,
     };
@@ -80,10 +75,7 @@ export class NotificationsService {
       throw new NotFoundException('No valid notifications to create');
     }
 
-    const recipients: Address[] = notifications.map((n) => ({
-      name: n.user.full_name,
-      address: n.user.email,
-    }));
+    const recipients = notifications.map((n) => n.user.email);
 
     // Use the first notification's title as the subject
     const subject = notifications[0].title;
