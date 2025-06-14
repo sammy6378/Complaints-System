@@ -10,7 +10,8 @@
   },
   "scripts": {
     "build": "nest build",
-    "copy:templates": "cpx \"mails/**/*\" dist/mails",
+    "postbuild": "npm run copy:templates",
+    "copy:templates": "copyfiles -u 1 mail/templates/**/* dist/mail/templates",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -26,6 +27,7 @@
   "dependencies": {
     "@casl/ability": "^6.7.3",
     "@keyv/redis": "^4.4.0",
+    "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/cache-manager": "^3.0.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
@@ -73,6 +75,7 @@
     "@types/nodemailer": "^6.4.17",
     "@types/passport-jwt": "^4.0.1",
     "@types/supertest": "^6.0.2",
+    "copyfiles": "^2.4.1",
     "cpx": "^1.5.0",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
