@@ -1,8 +1,6 @@
-import { Address } from 'nodemailer/lib/mailer';
-
 export type sendEmailDto = {
   subject: string;
-  recipients: Address[];
+  recipients: string | string[];
   template: string;
   data: Record<string, any>;
 };
