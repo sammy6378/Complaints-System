@@ -49,7 +49,10 @@ async function bootstrap() {
     .setDescription('API documentation for ResolveIt Complaints System')
     .setVersion('1.0')
     .addServer('http://localhost:8000', 'Development server')
-    .addServer('https://api.complaints.com', 'Production server')
+    .addServer(
+      'https://complaints-system-production.up.railway.app',
+      'Production server',
+    )
     .addTag('auth', 'Authentication related endpoints')
     .addTag('users', 'User related endpoints')
     .addTag('complaints', 'Complaint related endpoints')
