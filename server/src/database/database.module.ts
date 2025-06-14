@@ -52,7 +52,7 @@ import { join } from 'path';
           url: dbUrl,
           entities: [join(process.cwd(), 'dist/**/*.entity.js')],
           synchronize: configService.get('DB_SYNC') === 'true',
-          // logging: configService.get('DB_LOGGING') === 'true',
+          logging: configService.get('DB_LOGGING') === 'true',
           migrations: [join(process.cwd(), '/../migrations/**/*{.js,ts}')],
           autoLoadEntities: true,
         };
