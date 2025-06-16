@@ -18,6 +18,7 @@ import { join } from 'path';
           logging: configService.get('DB_LOGGING') === 'true',
           migrations: [join(process.cwd(), '/../migrations/**/*{.js,ts}')],
           autoLoadEntities: true,
+          ssl: true,
         };
       },
       inject: [ConfigService],
