@@ -1,26 +1,29 @@
-FROM node:20-alpine
+FROM node:22-alpine
 
-# install pnpm globally
+# Install pnpm globally
 RUN npm install -g pnpm
 
-# Set the working directory
+# Set working directory
 WORKDIR /app
 
-# create applogs directory
+# Create applogs directory
 RUN mkdir -p /app/applogs
 
-# Copy package.json and package-lock.json
+# Copy package and lock files
 COPY package.json pnpm-lock.yaml ./
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile
 
-# Copy the rest of the application code
+# Copy rest of the source code
 COPY . .
 
+# Build the app
+RUN pnpm run build
 
-# Expose the port the app runs on
+# Expose port
 EXPOSE 8000
 
-# Start the application in dev mode
+# Start app
+# Use an environment variable to determine mode (default: development)
 CMD ["pnpm", "run", "start:dev"]
