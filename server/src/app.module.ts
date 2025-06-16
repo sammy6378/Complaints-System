@@ -29,7 +29,7 @@ import { PaginationModule } from './pagination/pagination.module';
     // global config
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: `.env`,
+      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
     }),
     // global cache
     CacheModule.registerAsync({
