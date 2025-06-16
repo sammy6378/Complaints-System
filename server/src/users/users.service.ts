@@ -35,7 +35,6 @@ export class UsersService {
       const userWithoutPassword = instanceToPlain(user);
 
       const data = {
-        dashboardUrl: 'http://localhost:8000',
         email: user.email,
       };
 
