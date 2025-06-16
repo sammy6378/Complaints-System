@@ -18,7 +18,10 @@ import { join } from 'path';
           logging: configService.get('DB_LOGGING') === 'true',
           migrations: [join(process.cwd(), '/../migrations/**/*{.js,ts}')],
           autoLoadEntities: true,
-          ssl: true,
+          ssl:
+            configService.get<string>('DB_SSL') === 'true'
+              ? { rejectUnauthorized: false }
+              : false,
         };
       },
       inject: [ConfigService],

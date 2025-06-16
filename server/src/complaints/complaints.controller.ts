@@ -16,7 +16,7 @@ import {
 } from './dto/create-complaint.dto';
 import { UpdateComplaintDto } from './dto/update-complaint.dto';
 import { UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { UserRole } from 'src/users/dto/create-user.dto';
@@ -36,6 +36,18 @@ export class ComplaintsController {
   }
 
   @Roles(UserRole.ADMIN)
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'pages of data returned',
+    type: String,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'limit to number of rows returned',
+    type: String,
+  })
   @Get()
   findAll(@Query() paginatedQuery: CreatePaginationDto) {
     return this.complaintsService.findAll(paginatedQuery);
