@@ -35,7 +35,7 @@ import { join } from 'path';
           adapter: new EjsAdapter({
             inlineCssEnabled: true, // Enable inline CSS for email templates
           }),
-          options: { strict: true },
+          options: { strict: false },
         },
       }),
     }),
