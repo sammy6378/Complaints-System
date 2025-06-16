@@ -254,20 +254,18 @@ export class AuthService {
     // create token with user id and email
     const { resetToken } = await this.createResetToken(user.id, user.email);
 
-    const data = {
-      name: user.username,
-      email: user.email,
-      resetToken,
-      resetUrl: `${this.configService.getOrThrow<string>('FRONTEND_URL')}/resetPassword/${resetToken}`,
-    };
-
     // send email with reset link
     await this.mailService
       .sendEmail({
         subject: 'Password Reset Request',
-        recipients: data.email,
+        recipients: user.email,
         template: 'reset-password.ejs',
-        data,
+        context: {
+          name: user.username,
+          email: user.email,
+          resetToken,
+          resetUrl: `${this.configService.getOrThrow<string>('FRONTEND_URL')}/resetPassword/${resetToken}`,
+        },
       })
       .then(() => {
         console.log('Password reset email sent successfully');
