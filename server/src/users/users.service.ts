@@ -34,16 +34,14 @@ export class UsersService {
       const user = await this.userRepository.save(newUser);
       const userWithoutPassword = instanceToPlain(user);
 
-      const data = {
-        email: user.email,
-      };
-
       try {
         await this.mailService.sendEmail({
           subject: 'Account Created',
           template: 'welcome.ejs',
           recipients: user.email,
-          data,
+          context: {
+            email: user.email,
+          },
         });
       } catch (emailError) {
         // Log the error without failing the whole process

@@ -7,13 +7,12 @@ import { MailerService } from '@nestjs-modules/mailer';
 export class MailService {
   constructor(private readonly mailer: MailerService) {}
 
-  async sendEmail({ recipients, subject, template, data }: sendEmailDto) {
+  async sendEmail({ recipients, subject, template, context }: sendEmailDto) {
     await this.mailer.sendMail({
       to: recipients,
       subject,
-      template, // no .ejs extension
-      context: data,
-      // `from` comes from the defaults we set in MailerModule
+      template, // no .ejs extensio
+      context,
     });
   }
 }

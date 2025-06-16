@@ -36,17 +36,16 @@ export class NotificationsService {
     });
 
     const subject = notification.title;
-    const recipients = notification.user.full_name;
+    const recipients = notification.user.email;
 
-    const data = {
-      email: recipients,
-    };
     // send notification to the user
     await this.mailService.sendEmail({
       subject,
       template: 'message.ejs',
       recipients,
-      data,
+      context: {
+        email: recipients,
+      },
     });
 
     return await this.notificationRepository.save(notification);
@@ -84,7 +83,7 @@ export class NotificationsService {
       subject,
       template: 'bulksms.ejs',
       recipients,
-      data: {
+      context: {
         notifications,
       },
     });
