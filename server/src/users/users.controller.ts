@@ -16,13 +16,13 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import { Public } from 'src/auth/decorators/public.decorator';
 import { Roles } from 'src/auth/decorators/roles.decorator';
-import { AtGuard } from 'src/auth/guards/at.guard';
+// import { AtGuard } from 'src/auth/guards/at.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 
 @Controller('users')
 @ApiTags('users')
-@UseGuards(AtGuard, RolesGuard)
+@UseGuards(RolesGuard)
 @ApiBearerAuth()
 @UseInterceptors(CacheInterceptor)
 export class UsersController {
@@ -34,7 +34,8 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @Roles(UserRole.ADMIN)
+  // @Roles(UserRole.ADMIN)
+  @Public()
   @ApiQuery({
     name: 'email',
     required: false,

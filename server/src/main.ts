@@ -87,20 +87,21 @@ async function bootstrap() {
 
   // port configuration
   const configService = app.get(ConfigService);
+
+  // const isProduction = process.env.NODE_ENV === 'production';
   const PORT = configService.getOrThrow<number>('PORT');
 
-  // cors configuration
-  const allowedOrigin =
-    process.env.NODE_ENV === 'production'
-      ? process.env.FRONTEND_URL // Deployed frontend URL
-      : 'http://localhost:3000'; // Local development URL
-
   const corsOptions = {
-    origin: allowedOrigin, // Allow frontend
-    credentials: true, // Allow cookies, sessions
+    origin: 'http://localhost:5173',
+    credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders:
-      'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+    allowedHeaders: [
+      'Origin',
+      'X-Requested-With',
+      'Content-Type',
+      'Accept',
+      'Authorization',
+    ],
   };
 
   app.enableCors(corsOptions);
