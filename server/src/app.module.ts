@@ -9,7 +9,7 @@ import { LogsModule } from './logs/logs.module';
 import { LoggerMiddleware } from './logger.middleware';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
-import { AtGuard } from './auth/guards/at.guard';
+// import { AtGuard } from './auth/guards/at.guard';
 import { SeedModule } from './seed/seed.module';
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { CacheableMemory } from 'cacheable';
@@ -92,10 +92,10 @@ import { PaginationModule } from './pagination/pagination.module';
       provide: 'APP_INTERCEPTOR',
       useClass: CacheInterceptor, // global cache interceptor
     },
-    {
-      provide: APP_GUARD,
-      useClass: AtGuard, // protected routes
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: AtGuard, // protected routes
+    // },
     {
       provide: APP_GUARD,
       useClass: RolesGuard, // roles guard for role-based access control
