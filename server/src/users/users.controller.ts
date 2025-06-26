@@ -7,22 +7,22 @@ import {
   Param,
   Delete,
   UseInterceptors,
-  UseGuards,
+  // UseGuards,
   Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto, UserRole } from './dto/create-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import { Public } from 'src/auth/decorators/public.decorator';
-import { Roles } from 'src/auth/decorators/roles.decorator';
+// import { Roles } from 'src/auth/decorators/roles.decorator';
 // import { AtGuard } from 'src/auth/guards/at.guard';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
+// import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 
 @Controller('users')
 @ApiTags('users')
-@UseGuards(RolesGuard)
+// @UseGuards(RolesGuard)
 @ApiBearerAuth()
 @UseInterceptors(CacheInterceptor)
 export class UsersController {
@@ -47,19 +47,19 @@ export class UsersController {
     return this.usersService.findAll(email);
   }
 
-  @Roles(UserRole.ADMIN, UserRole.USER)
+  // @Roles(UserRole.ADMIN, UserRole.USER)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
 
-  @Roles(UserRole.ADMIN, UserRole.USER)
+  // @Roles(UserRole.ADMIN, UserRole.USER)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
 
-  @Roles(UserRole.ADMIN, UserRole.USER)
+  // @Roles(UserRole.ADMIN, UserRole.USER)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
