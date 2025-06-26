@@ -108,13 +108,16 @@ export class SubcategoriesService {
     }
   }
 
-  async remove(id: string): Promise<string> {
+  async remove(id: string): Promise<ApiResponse<string | null>> {
     try {
       const result = await this.subCategoryRepository.delete(id);
       if (result.affected === 0) {
-        return `Subcategory with id ${id} not found`;
+        return createResponse(null, `Subcategory with id ${id} not found`);
       }
-      return `Subcategory with id ${id} deleted successfully`;
+      return createResponse(
+        null,
+        `Subcategory with id ${id} deleted successfully`,
+      );
     } catch (error) {
       console.error('Error deleting subcategory:', error);
       throw new Error('Failed to delete subcategory');

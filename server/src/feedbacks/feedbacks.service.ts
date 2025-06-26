@@ -6,6 +6,7 @@ import { UpdateFeedbackDto } from './dto/update-feedback.dto';
 import { Feedback } from './entities/feedback.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Complaint } from 'src/complaints/entities/complaint.entity';
+import { ApiResponse, createResponse } from 'src/utils/responseHandler';
 
 @Injectable()
 export class FeedbacksService {
@@ -20,7 +21,9 @@ export class FeedbacksService {
     private readonly complaintRepository: Repository<Complaint>,
   ) {}
 
-  async create(createFeedbackDto: CreateFeedbackDto): Promise<Feedback> {
+  async create(
+    createFeedbackDto: CreateFeedbackDto,
+  ): Promise<ApiResponse<Feedback>> {
     const user = await this.userRepository.findOneBy({
       id: createFeedbackDto.userId,
     });
@@ -40,17 +43,25 @@ export class FeedbacksService {
       complaint,
     });
 
-    return await this.feedbackRepository.save(feedback);
+    const res = await this.feedbackRepository.save(feedback);
+    if (!res) {
+      throw new NotFoundException('Failed to create feedback');
+    }
+    return createResponse(res, 'Feedback created successfully');
   }
 
-  async findAll(): Promise<Feedback[]> {
-    return await this.feedbackRepository.find({
+  async findAll(): Promise<ApiResponse<Feedback[]>> {
+    const res = await this.feedbackRepository.find({
       relations: ['user', 'complaint'],
       order: { created_at: 'DESC' },
     });
+    if (!res || res.length === 0) {
+      throw new NotFoundException('No feedbacks found');
+    }
+    return createResponse(res, 'Feedbacks retrieved successfully');
   }
 
-  async findOne(id: string): Promise<Feedback> {
+  async findOne(id: string): Promise<ApiResponse<Feedback>> {
     const feedback = await this.feedbackRepository.findOne({
       where: { id },
       relations: ['user', 'complaint'],
@@ -60,13 +71,13 @@ export class FeedbacksService {
       throw new NotFoundException(`Feedback with ID ${id} not found`);
     }
 
-    return feedback;
+    return createResponse(feedback, 'Feedback found successfully');
   }
 
   async update(
     id: string,
     updateFeedbackDto: UpdateFeedbackDto,
-  ): Promise<Feedback> {
+  ): Promise<ApiResponse<Feedback>> {
     const feedback = await this.feedbackRepository.findOneBy({ id });
 
     if (!feedback) {
@@ -77,13 +88,13 @@ export class FeedbacksService {
     return await this.findOne(id);
   }
 
-  async remove(id: string): Promise<string> {
+  async remove(id: string): Promise<ApiResponse<string | null>> {
     const result = await this.feedbackRepository.delete(id);
 
     if (result.affected === 0) {
       throw new NotFoundException(`Feedback with ID ${id} not found`);
     }
 
-    return `Feedback with ID ${id} deleted successfully`;
+    return createResponse(null, `Feedback with ID ${id} deleted successfully`);
   }
 }

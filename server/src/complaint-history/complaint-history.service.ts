@@ -6,6 +6,7 @@ import { UpdateComplaintHistoryDto } from './dto/update-complaint-history.dto';
 import { ComplaintHistory } from './entities/complaint-history.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Complaint } from 'src/complaints/entities/complaint.entity';
+import { ApiResponse, createResponse } from 'src/utils/responseHandler';
 
 @Injectable()
 export class ComplaintHistoryService {
@@ -22,7 +23,7 @@ export class ComplaintHistoryService {
 
   async create(
     createComplaintHistoryDto: CreateComplaintHistoryDto,
-  ): Promise<ComplaintHistory> {
+  ): Promise<ApiResponse<ComplaintHistory>> {
     const user = await this.userRepository.findOneBy({
       id: createComplaintHistoryDto.userId,
     });
@@ -41,17 +42,26 @@ export class ComplaintHistoryService {
       complaint,
     });
 
-    return await this.complaintHistoryRepository.save(history);
+    const res = await this.complaintHistoryRepository.save(history);
+    if (!res) {
+      throw new NotFoundException('Failed to create complaint history');
+    }
+    return createResponse(res, 'Complaint history created successfully');
   }
 
-  async findAll(): Promise<ComplaintHistory[]> {
-    return await this.complaintHistoryRepository.find({
+  async findAll(): Promise<ApiResponse<ComplaintHistory[]>> {
+    const res = await this.complaintHistoryRepository.find({
       relations: ['user', 'complaint'],
       order: { created_at: 'DESC' },
     });
+
+    if (!res || res.length === 0) {
+      throw new NotFoundException('No complaint histories found');
+    }
+    return createResponse(res, 'Complaint histories retrieved successfully');
   }
 
-  async findOne(id: string): Promise<ComplaintHistory> {
+  async findOne(id: string): Promise<ApiResponse<ComplaintHistory>> {
     const history = await this.complaintHistoryRepository.findOne({
       where: { id },
       relations: ['user', 'complaint'],
@@ -61,13 +71,13 @@ export class ComplaintHistoryService {
       throw new NotFoundException(`ComplaintHistory with ID ${id} not found`);
     }
 
-    return history;
+    return createResponse(history, 'Complaint history found successfully');
   }
 
   async update(
     id: string,
     updateComplaintHistoryDto: UpdateComplaintHistoryDto,
-  ): Promise<ComplaintHistory> {
+  ): Promise<ApiResponse<ComplaintHistory>> {
     const history = await this.complaintHistoryRepository.findOneBy({ id });
 
     if (!history) {
@@ -78,13 +88,16 @@ export class ComplaintHistoryService {
     return await this.findOne(id);
   }
 
-  async remove(id: string): Promise<string> {
+  async remove(id: string): Promise<ApiResponse<string | null>> {
     const result = await this.complaintHistoryRepository.delete(id);
 
     if (result.affected === 0) {
       throw new NotFoundException(`ComplaintHistory with ID ${id} not found`);
     }
 
-    return `ComplaintHistory with ID ${id} deleted successfully`;
+    return createResponse(
+      null,
+      `ComplaintHistory with ID ${id} deleted successfully`,
+    );
   }
 }

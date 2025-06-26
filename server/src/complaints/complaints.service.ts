@@ -14,6 +14,7 @@ import { Subcategory } from 'src/subcategories/entities/subcategory.entity';
 import { CreatePaginationDto } from 'src/pagination/dto/create-pagination.dto';
 import { Paginated } from 'src/pagination/pagination.interface';
 import { PaginationProvider } from 'src/pagination/pagination.provider';
+import { ApiResponse, createResponse } from 'src/utils/responseHandler';
 
 @Injectable()
 export class ComplaintsService {
@@ -29,7 +30,9 @@ export class ComplaintsService {
     private readonly paginationProvider: PaginationProvider,
   ) {}
 
-  async create(createComplaintDto: CreateComplaintDto): Promise<Complaint> {
+  async create(
+    createComplaintDto: CreateComplaintDto,
+  ): Promise<ApiResponse<Complaint>> {
     const user = await this.userRepository.findOneBy({
       id: createComplaintDto.userId,
     });
@@ -53,19 +56,27 @@ export class ComplaintsService {
       subcategory,
     });
 
-    return await this.complaintRepository.save(complaint);
+    const res = await this.complaintRepository.save(complaint);
+    if (!res) {
+      throw new NotFoundException('Failed to create complaint');
+    }
+    return createResponse(res, 'Complaint created successfully');
   }
 
   async findAll(
     paginatedQuery: CreatePaginationDto,
-  ): Promise<Paginated<Complaint>> {
-    return await this.paginationProvider.paginatedQuery(
+  ): Promise<ApiResponse<Paginated<Complaint>>> {
+    const res = await this.paginationProvider.paginatedQuery(
       paginatedQuery,
       this.complaintRepository,
     );
+    if (!res) {
+      throw new NotFoundException('No complaints found');
+    }
+    return createResponse(res, 'Complaints retrieved successfully');
   }
 
-  async findOne(id: string): Promise<Complaint> {
+  async findOne(id: string): Promise<ApiResponse<Complaint>> {
     const complaint = await this.complaintRepository.findOne({
       where: { complaint_id: id },
       relations: ['user', 'category', 'subcategory'],
@@ -75,14 +86,14 @@ export class ComplaintsService {
       throw new NotFoundException(`Complaint with id ${id} not found`);
     }
 
-    return complaint;
+    return createResponse(complaint, 'Complaint found successfully');
   }
 
   // Find complaints filtered by optional status and priority
   async findFiltered(
     status?: complaint_status,
     priority?: complaint_priority,
-  ): Promise<Complaint[]> {
+  ): Promise<ApiResponse<Complaint[]>> {
     interface FilterOptions {
       status?: complaint_status;
       priority?: complaint_priority;
@@ -92,18 +103,22 @@ export class ComplaintsService {
     if (status) filterOptions.status = status;
     if (priority) filterOptions.priority = priority;
 
-    return await this.complaintRepository.find({
+    const res = await this.complaintRepository.find({
       where: {
         ...(status && { complaint_status: status }),
         ...(priority && { priority }),
       },
     });
+    if (!res || res.length === 0) {
+      throw new NotFoundException('No complaints found with the given filters');
+    }
+    return createResponse(res, 'Filtered complaints retrieved successfully');
   }
 
   async update(
     id: string,
     updateComplaintDto: UpdateComplaintDto,
-  ): Promise<Complaint | string> {
+  ): Promise<ApiResponse<Complaint | string>> {
     const complaint = await this.complaintRepository.findOneBy({
       complaint_id: id,
     });
@@ -119,13 +134,13 @@ export class ComplaintsService {
     return await this.findOne(id);
   }
 
-  async remove(id: string): Promise<string> {
+  async remove(id: string): Promise<ApiResponse<string | null>> {
     const result = await this.complaintRepository.delete(id);
 
     if (result.affected === 0) {
       throw new NotFoundException(`Complaint with id ${id} not found`);
     }
 
-    return `Complaint with id ${id} removed successfully`;
+    return createResponse(null, `Complaint with id ${id} deleted successfully`);
   }
 }

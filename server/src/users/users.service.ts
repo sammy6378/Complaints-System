@@ -75,7 +75,7 @@ export class UsersService {
       ],
       take: 50,
     });
-    return users;
+    return createResponse(users, 'Users found successfully');
   }
 
   async findOne(id: string): Promise<ApiResponse<Partial<User>> | string> {
@@ -102,14 +102,14 @@ export class UsersService {
     return this.findOne(id);
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<ApiResponse<string | null>> {
     return await this.userRepository
       .delete(id)
       .then((res) => {
         if (res.affected === 0) {
-          return `User with id ${id} not found`;
+          return createResponse(null, `User with id ${id} not found`);
         }
-        return `User with id ${id} deleted successfully`;
+        return createResponse(null, `User with id ${id} deleted successfully`);
       })
       .catch((err) => {
         console.error('Error deleting user:', err);

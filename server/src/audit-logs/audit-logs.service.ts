@@ -5,6 +5,7 @@ import { AuditLog } from './entities/audit-log.entity';
 import { CreateAuditLogDto } from './dto/create-audit-log.dto';
 import { UpdateAuditLogDto } from './dto/update-audit-log.dto';
 import { User } from 'src/users/entities/user.entity';
+import { ApiResponse, createResponse } from 'src/utils/responseHandler';
 
 @Injectable()
 export class AuditLogsService {
@@ -16,7 +17,9 @@ export class AuditLogsService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async create(createAuditLogDto: CreateAuditLogDto): Promise<AuditLog> {
+  async create(
+    createAuditLogDto: CreateAuditLogDto,
+  ): Promise<ApiResponse<AuditLog>> {
     const user = await this.userRepository.findOneBy({
       id: createAuditLogDto.userId,
     });
@@ -32,18 +35,26 @@ export class AuditLogsService {
       user,
     });
 
-    return await this.auditLogRepository.save(log);
+    const res = await this.auditLogRepository.save(log);
+    if (!res) {
+      throw new NotFoundException('Failed to create audit log');
+    }
+    return createResponse(res, 'Audit log created successfully');
   }
 
-  async findAll(): Promise<AuditLog[]> {
-    return await this.auditLogRepository.find({
+  async findAll(): Promise<ApiResponse<AuditLog[]>> {
+    const res = await this.auditLogRepository.find({
       relations: ['user'],
       order: { created_at: 'DESC' },
       take: 50,
     });
+    if (!res || res.length === 0) {
+      throw new NotFoundException('No audit logs found');
+    }
+    return createResponse(res, 'Audit logs retrieved successfully');
   }
 
-  async findOne(id: string): Promise<AuditLog> {
+  async findOne(id: string): Promise<ApiResponse<AuditLog>> {
     const log = await this.auditLogRepository.findOne({
       where: { id },
       relations: ['user'],
@@ -53,13 +64,13 @@ export class AuditLogsService {
       throw new NotFoundException(`Audit log with ID ${id} not found`);
     }
 
-    return log;
+    return createResponse(log, 'Audit log found successfully');
   }
 
   async update(
     id: string,
     updateAuditLogDto: UpdateAuditLogDto,
-  ): Promise<AuditLog> {
+  ): Promise<ApiResponse<AuditLog>> {
     const log = await this.auditLogRepository.findOneBy({ id });
 
     if (!log) {
@@ -70,13 +81,13 @@ export class AuditLogsService {
     return await this.findOne(id);
   }
 
-  async remove(id: string): Promise<string> {
+  async remove(id: string): Promise<ApiResponse<string | null>> {
     const result = await this.auditLogRepository.delete(id);
 
     if (result.affected === 0) {
       throw new NotFoundException(`Audit log with ID ${id} not found`);
     }
 
-    return `Audit log with ID ${id} deleted successfully`;
+    return createResponse(null, `Audit log with ID ${id} deleted successfully`);
   }
 }

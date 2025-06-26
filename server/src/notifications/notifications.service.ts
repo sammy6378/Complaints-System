@@ -6,6 +6,7 @@ import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { Notification } from './entities/notification.entity';
 import { User } from 'src/users/entities/user.entity';
 import { MailService } from 'src/mail/mail.service';
+import { ApiResponse, createResponse } from 'src/utils/responseHandler';
 
 @Injectable()
 export class NotificationsService {
@@ -21,7 +22,7 @@ export class NotificationsService {
 
   async create(
     createNotificationDto: CreateNotificationDto,
-  ): Promise<Notification> {
+  ): Promise<ApiResponse<Notification>> {
     const user = await this.userRepository.findOneBy({
       id: createNotificationDto.userId,
     });
@@ -48,7 +49,11 @@ export class NotificationsService {
       },
     });
 
-    return await this.notificationRepository.save(notification);
+    const res = await this.notificationRepository.save(notification);
+    if (!res) {
+      throw new NotFoundException('Failed to create notification');
+    }
+    return createResponse(res, 'Notification created successfully');
   }
 
   async bulkCreate(
@@ -91,14 +96,18 @@ export class NotificationsService {
     return await this.notificationRepository.save(notifications);
   }
 
-  async findAll(): Promise<Notification[]> {
-    return await this.notificationRepository.find({
+  async findAll(): Promise<ApiResponse<Notification[]>> {
+    const res = await this.notificationRepository.find({
       relations: ['user'],
       order: { created_at: 'DESC' },
     });
+    if (!res || res.length === 0) {
+      throw new NotFoundException('No notifications found');
+    }
+    return createResponse(res, 'Notifications retrieved successfully');
   }
 
-  async findOne(id: string): Promise<Notification> {
+  async findOne(id: string): Promise<ApiResponse<Notification>> {
     const notification = await this.notificationRepository.findOne({
       where: { id },
       relations: ['user'],
@@ -108,13 +117,13 @@ export class NotificationsService {
       throw new NotFoundException(`Notification with ID ${id} not found`);
     }
 
-    return notification;
+    return createResponse(notification, 'Notification found successfully');
   }
 
   async update(
     id: string,
     updateNotificationDto: UpdateNotificationDto,
-  ): Promise<Notification> {
+  ): Promise<ApiResponse<Notification>> {
     const notification = await this.notificationRepository.findOneBy({ id });
 
     if (!notification) {
@@ -125,13 +134,16 @@ export class NotificationsService {
     return await this.findOne(id);
   }
 
-  async remove(id: string): Promise<string> {
+  async remove(id: string): Promise<ApiResponse<string | null>> {
     const result = await this.notificationRepository.delete(id);
 
     if (result.affected === 0) {
       throw new NotFoundException(`Notification with ID ${id} not found`);
     }
 
-    return `Notification with ID ${id} removed successfully`;
+    return createResponse(
+      null,
+      `Notification with ID ${id} deleted successfully`,
+    );
   }
 }
