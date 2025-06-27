@@ -126,7 +126,7 @@ export class SeedService {
     for (let i = 1; i <= 100; i++) {
       const newCategory = new Category();
       newCategory.category_name = faker.commerce.department();
-      newCategory.decription = faker.lorem.paragraph();
+      newCategory.description = faker.lorem.paragraph();
 
       categories.push(await this.categoryRepository.save(newCategory));
     }
