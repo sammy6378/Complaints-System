@@ -28,7 +28,10 @@ export class CategoriesService {
 
   async findAll(): Promise<ApiResponse<Category[]>> {
     try {
-      const categories = await this.categoryRepository.find();
+      const categories = await this.categoryRepository.find({
+        relations: ['subCategories', 'complaints'],
+        order: { created_at: 'DESC' },
+      });
       return createResponse(categories, 'Categories retrieved successfully');
     } catch (error) {
       console.error('Error retrieving categories:', error);

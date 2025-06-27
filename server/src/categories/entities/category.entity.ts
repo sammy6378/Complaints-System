@@ -17,7 +17,7 @@ export class Category {
   category_name: string;
 
   @Column({ type: 'text' })
-  decription: string;
+  description: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

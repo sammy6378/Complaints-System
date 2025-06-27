@@ -11,8 +11,6 @@ import { Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Category } from 'src/categories/entities/category.entity';
 import { Subcategory } from 'src/subcategories/entities/subcategory.entity';
-import { CreatePaginationDto } from 'src/pagination/dto/create-pagination.dto';
-import { Paginated } from 'src/pagination/pagination.interface';
 import { PaginationProvider } from 'src/pagination/pagination.provider';
 import { ApiResponse, createResponse } from 'src/utils/responseHandler';
 
@@ -63,13 +61,10 @@ export class ComplaintsService {
     return createResponse(res, 'Complaint created successfully');
   }
 
-  async findAll(
-    paginatedQuery: CreatePaginationDto,
-  ): Promise<ApiResponse<Paginated<Complaint>>> {
-    const res = await this.paginationProvider.paginatedQuery(
-      paginatedQuery,
-      this.complaintRepository,
-    );
+  async findAll(): Promise<ApiResponse<Complaint[]>> {
+    const res = await this.complaintRepository.find({
+      relations: ['user', 'category', 'subcategory'],
+    });
     if (!res) {
       throw new NotFoundException('No complaints found');
     }
