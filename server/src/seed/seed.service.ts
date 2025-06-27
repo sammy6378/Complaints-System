@@ -14,6 +14,7 @@ import { ComplaintStatus } from 'src/complaint-history/dto/create-complaint-hist
 import { AuditLog } from 'src/audit-logs/entities/audit-log.entity';
 import { AuditAction } from 'src/audit-logs/dto/create-audit-log.dto';
 import { NotificationType } from 'src/notifications/dto/create-notification.dto';
+import { complaint_status } from 'src/complaints/dto/create-complaint.dto';
 
 @Injectable()
 export class SeedService {
@@ -167,6 +168,9 @@ export class SeedService {
       complaint.complaint_title = faker.lorem.words(4);
       complaint.complaint_description = faker.lorem.paragraph();
       complaint.location = faker.location.streetAddress();
+      complaint.complaint_status = faker.helpers.arrayElement(
+        Object.values(complaint_status),
+      );
       complaint.user = faker.helpers.arrayElement(users);
       complaint.category = faker.helpers.arrayElement(categories);
       complaint.subcategory = faker.helpers.arrayElement(subcategories);
