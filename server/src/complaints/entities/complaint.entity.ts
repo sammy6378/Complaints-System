@@ -49,6 +49,9 @@ export class Complaint {
   @Column({ nullable: true })
   location: string;
 
+  @Column({ type: 'simple-array', nullable: true })
+  sub_categories?: string[];
+
   //   relations
   @ManyToOne(() => User, (user) => user.complaints, {
     onDelete: 'CASCADE',

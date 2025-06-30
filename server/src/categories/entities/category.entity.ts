@@ -19,7 +19,7 @@ export class Category {
   description: string;
 
   @Column({ type: 'simple-array', nullable: true })
-  sub_categories: string[];
+  sub_categories?: string[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

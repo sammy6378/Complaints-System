@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsEnum, IsOptional, IsString } from 'class-validator';
 
 export enum complaint_priority {
   Low = 'Low',
@@ -62,6 +62,10 @@ export class CreateComplaintDto {
   })
   @IsString()
   location: string;
+
+  @IsArray()
+  @IsOptional()
+  sub_categories?: string[];
 
   @IsString()
   user_id: string;
