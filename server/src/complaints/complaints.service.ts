@@ -10,8 +10,8 @@ import { Complaint } from './entities/complaint.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Category } from 'src/categories/entities/category.entity';
-import { Subcategory } from 'src/subcategories/entities/subcategory.entity';
 import { ApiResponse, createResponse } from 'src/utils/responseHandler';
+import { ComplaintAuditHelper } from 'src/utils/audit-helper.service';
 
 @Injectable()
 export class ComplaintsService {
@@ -22,8 +22,7 @@ export class ComplaintsService {
     private userRepository: Repository<User>,
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
-    @InjectRepository(Subcategory)
-    private subcategoryRepository: Repository<Subcategory>,
+    private readonly auditHelper: ComplaintAuditHelper,
   ) {}
 
   async create(
@@ -35,13 +34,10 @@ export class ComplaintsService {
     const category = await this.categoryRepository.findOneBy({
       category_id: createComplaintDto.category_id,
     });
-    const subcategory = await this.subcategoryRepository.findOneBy({
-      subcategory_id: createComplaintDto.subcategory_id,
-    });
 
-    if (!user || !category || !subcategory) {
+    if (!user || !category) {
       throw new NotFoundException(
-        'Invalid references: user, category, subcategory,not found',
+        'Invalid references: user, category,not found',
       );
     }
 
@@ -49,19 +45,33 @@ export class ComplaintsService {
       ...createComplaintDto,
       user,
       category,
-      subcategory,
     });
 
     const res = await this.complaintRepository.save(complaint);
     if (!res) {
       throw new NotFoundException('Failed to create complaint');
     }
-    return createResponse(res, 'Complaint created successfully');
+    // 📝 Log audit
+    await this.auditHelper.logComplaintCreated(
+      user.user_id,
+      res.complaint_id,
+      res.complaint_number,
+      res.complaint_title,
+      res.priority,
+      res.location,
+      category.category_name,
+    );
+
+    return createResponse(
+      res,
+      `Complaint #${res.complaint_number} created successfully`,
+    );
   }
 
   async findAll(): Promise<ApiResponse<Complaint[]>> {
     const res = await this.complaintRepository.find({
-      relations: ['user', 'category', 'subcategory'],
+      relations: ['user', 'category'],
+      order: { complaint_number: 'DESC' }, // Order by complaint number, newest first
     });
     if (!res) {
       throw new NotFoundException('No complaints found');
@@ -72,7 +82,7 @@ export class ComplaintsService {
   async findOne(id: string): Promise<ApiResponse<Complaint>> {
     const complaint = await this.complaintRepository.findOne({
       where: { complaint_id: id },
-      relations: ['user', 'category', 'subcategory'],
+      relations: ['user', 'category'],
     });
 
     if (!complaint) {
@@ -80,6 +90,24 @@ export class ComplaintsService {
     }
 
     return createResponse(complaint, 'Complaint found successfully');
+  }
+
+  async findByComplaintNumber(
+    complaintNumber: number,
+  ): Promise<ApiResponse<Complaint>> {
+    const complaint = await this.complaintRepository.findOne({
+      where: { complaint_number: complaintNumber },
+      relations: ['user', 'category'],
+    });
+
+    if (!complaint) {
+      throw new NotFoundException(`Complaint #${complaintNumber} not found`);
+    }
+
+    return createResponse(
+      complaint,
+      `Complaint #${complaintNumber} found successfully`,
+    );
   }
 
   // Find complaints filtered by optional status and priority
@@ -101,6 +129,7 @@ export class ComplaintsService {
         ...(status && { complaint_status: status }),
         ...(priority && { priority }),
       },
+      order: { complaint_number: 'DESC' }, // Order by complaint number, newest first
     });
     if (!res || res.length === 0) {
       throw new NotFoundException('No complaints found with the given filters');
@@ -112,27 +141,86 @@ export class ComplaintsService {
     id: string,
     updateComplaintDto: UpdateComplaintDto,
   ): Promise<ApiResponse<Complaint | string>> {
-    const complaint = await this.complaintRepository.findOneBy({
-      complaint_id: id,
+    const complaint = await this.complaintRepository.findOne({
+      where: { complaint_id: id },
+      relations: ['user', 'category'],
     });
 
     if (!complaint) {
       throw new NotFoundException(`Complaint with id ${id} not found`);
     }
 
+    const originalStatus = complaint.complaint_status;
+    const originalPriority = complaint.priority;
+
     await this.complaintRepository.update(id, updateComplaintDto);
+    const updatedComplaintRes = await this.findOne(id);
 
-    // save complaint history
+    const updatedComplaint =
+      updatedComplaintRes.data && typeof updatedComplaintRes.data !== 'string'
+        ? updatedComplaintRes.data
+        : null;
 
-    return await this.findOne(id);
+    if (updatedComplaint) {
+      const userId = updatedComplaint.user.user_id;
+
+      // Log status change
+      if (
+        updateComplaintDto.complaint_status &&
+        updateComplaintDto.complaint_status !== originalStatus
+      ) {
+        await this.auditHelper.logComplaintStatusChange(
+          userId,
+          updatedComplaint.complaint_id,
+          updatedComplaint.complaint_number,
+          originalStatus,
+          updateComplaintDto.complaint_status,
+        );
+      }
+
+      // Log priority change
+      if (
+        updateComplaintDto.priority &&
+        updateComplaintDto.priority !== originalPriority
+      ) {
+        await this.auditHelper.logComplaintPriorityChange(
+          userId,
+          updatedComplaint.complaint_id,
+          updatedComplaint.complaint_number,
+          originalPriority,
+          updateComplaintDto.priority,
+        );
+      }
+
+      updatedComplaintRes.message = `Complaint #${updatedComplaint.complaint_number} updated successfully`;
+    }
+
+    return updatedComplaintRes;
   }
 
   async remove(id: string): Promise<ApiResponse<string | null>> {
+    const complaint = await this.complaintRepository.findOne({
+      where: { complaint_id: id },
+      relations: ['user'],
+    });
+
+    if (!complaint) {
+      throw new NotFoundException(`Complaint with id ${id} not found`);
+    }
+
     const result = await this.complaintRepository.delete(id);
 
     if (result.affected === 0) {
       throw new NotFoundException(`Complaint with id ${id} not found`);
     }
+
+    // 📝 Log deletion
+    await this.auditHelper.logComplaintDeleted(
+      complaint.user.user_id,
+      complaint.complaint_id,
+      complaint.complaint_number,
+      complaint.complaint_title,
+    );
 
     return createResponse(null, `Complaint with id ${id} deleted successfully`);
   }

@@ -31,7 +31,7 @@ export class User {
   phone_number: string;
 
   @Exclude()
-  @Column()
+  @Column({ select: false })
   password: string;
 
   @Column({ nullable: true, type: 'text', default: null })

@@ -2,7 +2,6 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
 import { ComplaintsModule } from './complaints/complaints.module';
 import { CategoriesModule } from './categories/categories.module';
-import { SubcategoriesModule } from './subcategories/subcategories.module';
 import { DatabaseModule } from './database/database.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LogsModule } from './logs/logs.module';
@@ -73,7 +72,6 @@ import { PaginationModule } from './pagination/pagination.module';
     UsersModule,
     ComplaintsModule,
     CategoriesModule,
-    SubcategoriesModule,
     DatabaseModule,
     LogsModule,
     AuthModule,

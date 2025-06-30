@@ -3,15 +3,11 @@ import { CategoriesService } from './categories.service';
 import { CategoriesController } from './categories.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
-import { Subcategory } from 'src/subcategories/entities/subcategory.entity';
 import { DatabaseModule } from 'src/database/database.module';
 import { Complaint } from 'src/complaints/entities/complaint.entity';
 
 @Module({
-  imports: [
-    DatabaseModule,
-    TypeOrmModule.forFeature([Category, Subcategory, Complaint]),
-  ],
+  imports: [DatabaseModule, TypeOrmModule.forFeature([Category, Complaint])],
   controllers: [CategoriesController],
   providers: [CategoriesService],
 })

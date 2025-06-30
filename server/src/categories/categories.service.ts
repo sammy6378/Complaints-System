@@ -29,7 +29,7 @@ export class CategoriesService {
   async findAll(): Promise<ApiResponse<Category[]>> {
     try {
       const categories = await this.categoryRepository.find({
-        relations: ['subCategories', 'complaints'],
+        relations: ['complaints'],
         order: { created_at: 'DESC' },
       });
       return createResponse(categories, 'Categories retrieved successfully');

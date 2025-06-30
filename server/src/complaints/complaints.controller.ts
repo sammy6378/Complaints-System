@@ -16,7 +16,12 @@ import {
 } from './dto/create-complaint.dto';
 import { UpdateComplaintDto } from './dto/update-complaint.dto';
 // import { UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 // import { RolesGuard } from 'src/auth/guards/roles.guard';
 // import { Roles } from 'src/auth/decorators/roles.decorator';
 // import { UserRole } from 'src/users/dto/create-user.dto';
@@ -46,6 +51,19 @@ export class ComplaintsController {
     @Query('priority') priority?: complaint_priority,
   ) {
     return this.complaintsService.findFiltered(complaint_status, priority);
+  }
+
+  @ApiOperation({ summary: 'Find complaint by complaint number' })
+  @ApiParam({
+    name: 'number',
+    description: 'Complaint number',
+    example: '2340',
+  })
+  @Get(':number')
+  findByComplaintNumber(@Param('number') complaintNumber: string) {
+    return this.complaintsService.findByComplaintNumber(
+      parseInt(complaintNumber),
+    );
   }
 
   @Get(':id')

@@ -6,6 +6,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   Relation,
+  Generated,
 } from 'typeorm';
 import {
   complaint_priority,
@@ -13,7 +14,6 @@ import {
 } from '../dto/create-complaint.dto';
 import { User } from 'src/users/entities/user.entity';
 import { Category } from 'src/categories/entities/category.entity';
-import { Subcategory } from 'src/subcategories/entities/subcategory.entity';
 import { ComplaintHistory } from 'src/complaint-history/entities/complaint-history.entity';
 import { Feedback } from 'src/feedbacks/entities/feedback.entity';
 
@@ -21,6 +21,10 @@ import { Feedback } from 'src/feedbacks/entities/feedback.entity';
 export class Complaint {
   @PrimaryGeneratedColumn('uuid')
   complaint_id: string;
+
+  @Column({ unique: true })
+  @Generated('increment')
+  complaint_number: number;
 
   @Column({ nullable: false })
   complaint_title: string;
@@ -60,14 +64,6 @@ export class Complaint {
   })
   @JoinColumn()
   category: Relation<Category>;
-
-  @ManyToOne(() => Subcategory, (subCategory) => subCategory.complaints, {
-    onDelete: 'SET NULL',
-    onUpdate: 'CASCADE',
-    eager: true,
-  })
-  @JoinColumn()
-  subcategory?: Relation<Subcategory>;
 
   // History relation
   @OneToMany(() => ComplaintHistory, (history) => history.complaint)

@@ -5,7 +5,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Complaint } from 'src/complaints/entities/complaint.entity';
 import { Category } from 'src/categories/entities/category.entity';
-import { Subcategory } from 'src/subcategories/entities/subcategory.entity';
 import { DatabaseModule } from 'src/database/database.module';
 import { AuditLog } from 'src/audit-logs/entities/audit-log.entity';
 import { Notification } from 'src/notifications/entities/notification.entity';
@@ -19,7 +18,6 @@ import { ComplaintHistory } from 'src/complaint-history/entities/complaint-histo
       User,
       Complaint,
       Category,
-      Subcategory,
       AuditLog,
       Notification,
       Feedback,

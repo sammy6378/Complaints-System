@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from 'src/categories/entities/category.entity';
 import { Complaint } from 'src/complaints/entities/complaint.entity';
-import { Subcategory } from 'src/subcategories/entities/subcategory.entity';
 import { User } from 'src/users/entities/user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { faker } from '@faker-js/faker';
@@ -24,8 +23,6 @@ export class SeedService {
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
-    @InjectRepository(Subcategory)
-    private subcategoryRepository: Repository<Subcategory>,
     @InjectRepository(Complaint)
     private complaintRepository: Repository<Complaint>,
     @InjectRepository(ComplaintHistory)
@@ -50,13 +47,8 @@ export class SeedService {
       await this.clearTables();
 
       const categories = await this.seedCategories();
-      const subcategories = await this.seedSubcategories();
       const users = await this.seedUsers();
-      const complaints = await this.seedComplaints(
-        users,
-        categories,
-        subcategories,
-      );
+      const complaints = await this.seedComplaints(users, categories);
       await this.seedComplaintHistory(complaints, users);
       await this.seedFeedback(users, complaints);
       await this.seedNotifications(users);
@@ -84,7 +76,6 @@ export class SeedService {
       await queryRunner.query('DELETE FROM feedbacks');
       await queryRunner.query('DELETE FROM notifications');
       await queryRunner.query('DELETE FROM complaints');
-      await queryRunner.query('DELETE FROM subcategories');
       await queryRunner.query('DELETE FROM categories');
       await queryRunner.query('DELETE FROM users');
 
@@ -135,31 +126,8 @@ export class SeedService {
     return categories;
   }
 
-  // seed subcategories
-  private async seedSubcategories() {
-    this.logger.log('Seeding subcategories...');
-    const subcategories: Subcategory[] = [];
-
-    const categories = await this.categoryRepository.find();
-
-    for (let i = 1; i <= 100; i++) {
-      const newSubcategory = new Subcategory();
-      newSubcategory.subcategory_name = faker.commerce.productName();
-      newSubcategory.description = faker.lorem.paragraph();
-      newSubcategory.category = faker.helpers.arrayElement(categories);
-
-      subcategories.push(await this.subcategoryRepository.save(newSubcategory));
-    }
-    this.logger.log(`Seeded ${subcategories.length} subcategories`);
-    return subcategories;
-  }
-
   //   seed complaints
-  private async seedComplaints(
-    users: User[],
-    categories: Category[],
-    subcategories: Subcategory[],
-  ) {
+  private async seedComplaints(users: User[], categories: Category[]) {
     this.logger.log('Seeding complaints...');
     const complaints: Complaint[] = [];
 
@@ -173,7 +141,6 @@ export class SeedService {
       );
       complaint.user = faker.helpers.arrayElement(users);
       complaint.category = faker.helpers.arrayElement(categories);
-      complaint.subcategory = faker.helpers.arrayElement(subcategories);
       complaints.push(await this.complaintRepository.save(complaint));
     }
 

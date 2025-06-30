@@ -1,5 +1,4 @@
 import { Complaint } from 'src/complaints/entities/complaint.entity';
-import { Subcategory } from 'src/subcategories/entities/subcategory.entity';
 import {
   Column,
   Entity,
@@ -19,6 +18,9 @@ export class Category {
   @Column({ type: 'text' })
   description: string;
 
+  @Column({ type: 'simple-array', nullable: true })
+  sub_categories: string[];
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
@@ -28,9 +30,6 @@ export class Category {
     onUpdate: 'CURRENT_TIMESTAMP',
   })
   updated_at: Date;
-
-  @OneToMany(() => Subcategory, (subCategory) => subCategory.category)
-  subCategories: Relation<Subcategory[]>;
 
   @OneToMany(() => Complaint, (complaint) => complaint.category)
   complaints: Relation<Complaint[]>;

@@ -68,8 +68,4 @@ export class CreateComplaintDto {
 
   @IsString()
   category_id: string;
-
-  @IsString()
-  @IsOptional()
-  subcategory_id?: string;
 }
