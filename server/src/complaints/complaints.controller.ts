@@ -15,31 +15,31 @@ import {
   CreateComplaintDto,
 } from './dto/create-complaint.dto';
 import { UpdateComplaintDto } from './dto/update-complaint.dto';
-// import { UseGuards } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-// import { RolesGuard } from 'src/auth/guards/roles.guard';
-// import { Roles } from 'src/auth/decorators/roles.decorator';
-// import { UserRole } from 'src/users/dto/create-user.dto';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { UserRole } from 'src/users/dto/create-user.dto';
 
-// @UseGuards(RolesGuard)
+@UseGuards(RolesGuard)
 @ApiTags('complaints')
 @ApiBearerAuth()
 @Controller('complaints')
 export class ComplaintsController {
   constructor(private readonly complaintsService: ComplaintsService) {}
 
-  // @Roles(UserRole.ADMIN, UserRole.USER)
+  @Roles(UserRole.ADMIN, UserRole.USER)
   @Post()
   create(@Body() createComplaintDto: CreateComplaintDto) {
     return this.complaintsService.create(createComplaintDto);
   }
 
-  // @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN)
   @Get()
   findAll() {
     return this.complaintsService.findAll();
@@ -71,7 +71,7 @@ export class ComplaintsController {
     return this.complaintsService.findOne(id);
   }
 
-  // @Roles(UserRole.ADMIN, UserRole.USER)
+  @Roles(UserRole.ADMIN, UserRole.USER)
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -80,7 +80,7 @@ export class ComplaintsController {
     return this.complaintsService.update(id, updateComplaintDto);
   }
 
-  // @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.complaintsService.remove(id);

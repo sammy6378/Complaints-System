@@ -18,7 +18,7 @@ export interface RequestWithUser extends Request {
   user: {
     sub: string;
     email: string;
-    refreshToken: string;
+    refresh_token: string;
   };
 }
 
@@ -51,7 +51,7 @@ export class AuthController {
     if (user.sub !== id) {
       throw new UnauthorizedException('Invalid user ID');
     }
-    return await this.authService.refreshTokens(id, user.refreshToken);
+    return await this.authService.refreshTokens(id, user.refresh_token);
   }
 
   // auth/changePassword

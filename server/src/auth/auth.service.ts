@@ -12,6 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { currentUser } from 'src/types/jwtUser';
 import { MailService } from 'src/mail/mail.service';
+import { createResponse } from 'src/utils/responseHandler';
 
 interface decodedToken {
   user_id: string;
@@ -93,8 +94,8 @@ export class AuthService {
 
     // return the tokens
     return {
-      accessToken: at,
-      refreshToken: rt,
+      access_token: at,
+      refresh_token: rt,
     };
   }
 
@@ -148,16 +149,27 @@ export class AuthService {
     }
 
     // create tokens
-    const { accessToken, refreshToken } = await this.createTokens(
+    const { access_token, refresh_token } = await this.createTokens(
       user.user_id,
       user.email,
     );
 
     // save refresh token in the database
-    await this.saveRefreshToken(user.user_id, refreshToken);
+    await this.saveRefreshToken(user.user_id, refresh_token);
+
+    const res = {
+      tokens: {
+        access_token,
+        refresh_token,
+      },
+      user: {
+        userId: user.user_id,
+        role: user.role,
+      },
+    };
 
     // return tokens
-    return { accessToken, refreshToken };
+    return createResponse(res, 'User signed in successfully');
   }
 
   // sign out users
@@ -196,10 +208,10 @@ export class AuthService {
     }
 
     // generate new tokens
-    const { accessToken, refreshToken: newRefreshToken } =
+    const { access_token, refresh_token: newRefreshToken } =
       await this.createTokens(user.user_id, user.email);
 
-    return { accessToken, refreshToken: newRefreshToken };
+    return { access_token, refresh_token: newRefreshToken };
   }
 
   // validate user
