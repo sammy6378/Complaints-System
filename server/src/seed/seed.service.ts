@@ -139,6 +139,9 @@ export class SeedService {
       complaint.complaint_status = faker.helpers.arrayElement(
         Object.values(complaint_status),
       );
+      complaint.sub_categories = faker.helpers.arrayElements(
+        categories.map((cat) => cat.category_name),
+      );
       complaint.user = faker.helpers.arrayElement(users);
       complaint.category = faker.helpers.arrayElement(categories);
       complaints.push(await this.complaintRepository.save(complaint));

@@ -5,6 +5,7 @@ export enum complaint_priority {
   Low = 'Low',
   Medium = 'Medium',
   High = 'High',
+  Critical = 'Critical',
 }
 
 export enum complaint_status {
