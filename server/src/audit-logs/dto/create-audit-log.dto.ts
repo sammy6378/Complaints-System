@@ -21,7 +21,7 @@ export enum AuditAction {
 export class CreateAuditLogDto {
   @ApiProperty({ description: 'ID of the user who performed the action' })
   @IsUUID()
-  actorId: string;
+  actor_id: string;
 
   @ApiProperty({ enum: AuditAction })
   @IsEnum(AuditAction)
@@ -35,7 +35,7 @@ export class CreateAuditLogDto {
   @ApiProperty({ description: 'ID of the affected resource', required: false })
   @IsString()
   @IsOptional()
-  resourceId?: string;
+  resource_id?: string;
 
   @ApiProperty({
     description: 'Optional details about the action',
@@ -46,5 +46,5 @@ export class CreateAuditLogDto {
   details?: string;
 
   @IsString()
-  userId: string;
+  user_id: string;
 }

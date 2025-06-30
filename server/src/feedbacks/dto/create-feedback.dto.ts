@@ -23,9 +23,9 @@ export class CreateFeedbackDto {
   rating?: number;
 
   @IsString()
-  userId: string;
+  user_id: string;
 
   @IsOptional()
   @IsUUID()
-  complaintId: string;
+  complaint_id: string;
 }

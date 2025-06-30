@@ -24,7 +24,7 @@ export class NotificationsService {
     createNotificationDto: CreateNotificationDto,
   ): Promise<ApiResponse<Notification>> {
     const user = await this.userRepository.findOneBy({
-      id: createNotificationDto.userId,
+      user_id: createNotificationDto.user_id,
     });
 
     if (!user) {
@@ -62,9 +62,11 @@ export class NotificationsService {
     const notifications: Notification[] = [];
 
     for (const dto of createNotificationDtos) {
-      const user = await this.userRepository.findOneBy({ id: dto.userId });
+      const user = await this.userRepository.findOneBy({
+        user_id: dto.user_id,
+      });
       if (!user) {
-        throw new NotFoundException(`User with ID ${dto.userId} not found`);
+        throw new NotFoundException(`User with ID ${dto.user_id} not found`);
       }
 
       const notification = this.notificationRepository.create({

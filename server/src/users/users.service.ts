@@ -64,12 +64,11 @@ export class UsersService {
     }
     const users = await this.userRepository.find({
       select: [
-        'id',
+        'user_id',
         'full_name',
         'email',
         'phone_number',
         'username',
-        'refresh_token',
         'status',
         'role',
       ],
@@ -80,7 +79,7 @@ export class UsersService {
 
   async findOne(id: string): Promise<ApiResponse<Partial<User>> | string> {
     return await this.userRepository
-      .findOneBy({ id })
+      .findOneBy({ user_id: id })
       .then((user) => {
         if (!user) {
           return `User with id ${id} not found`;

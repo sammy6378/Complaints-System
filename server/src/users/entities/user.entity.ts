@@ -16,7 +16,7 @@ import { Feedback } from 'src/feedbacks/entities/feedback.entity';
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  user_id: string;
 
   @Column()
   full_name: string;

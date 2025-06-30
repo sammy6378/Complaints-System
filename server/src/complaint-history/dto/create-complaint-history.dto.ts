@@ -32,5 +32,5 @@ export class CreateComplaintHistoryDto {
   remarks?: string;
 
   @IsString()
-  userId: string;
+  user_id: string;
 }

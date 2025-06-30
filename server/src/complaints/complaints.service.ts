@@ -11,7 +11,6 @@ import { Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Category } from 'src/categories/entities/category.entity';
 import { Subcategory } from 'src/subcategories/entities/subcategory.entity';
-import { PaginationProvider } from 'src/pagination/pagination.provider';
 import { ApiResponse, createResponse } from 'src/utils/responseHandler';
 
 @Injectable()
@@ -25,20 +24,19 @@ export class ComplaintsService {
     private categoryRepository: Repository<Category>,
     @InjectRepository(Subcategory)
     private subcategoryRepository: Repository<Subcategory>,
-    private readonly paginationProvider: PaginationProvider,
   ) {}
 
   async create(
     createComplaintDto: CreateComplaintDto,
   ): Promise<ApiResponse<Complaint>> {
     const user = await this.userRepository.findOneBy({
-      id: createComplaintDto.userId,
+      user_id: createComplaintDto.user_id,
     });
     const category = await this.categoryRepository.findOneBy({
-      category_id: createComplaintDto.categoryId,
+      category_id: createComplaintDto.category_id,
     });
     const subcategory = await this.subcategoryRepository.findOneBy({
-      id: createComplaintDto.subcategoryId,
+      subcategory_id: createComplaintDto.subcategory_id,
     });
 
     if (!user || !category || !subcategory) {

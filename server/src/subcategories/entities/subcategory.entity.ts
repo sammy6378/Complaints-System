@@ -13,7 +13,7 @@ import {
 @Entity('subcategories')
 export class Subcategory {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  subcategory_id: string;
 
   @Column({ nullable: false })
   subcategory_name: string;

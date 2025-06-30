@@ -25,7 +25,7 @@ export class ComplaintHistoryService {
     createComplaintHistoryDto: CreateComplaintHistoryDto,
   ): Promise<ApiResponse<ComplaintHistory>> {
     const user = await this.userRepository.findOneBy({
-      id: createComplaintHistoryDto.userId,
+      user_id: createComplaintHistoryDto.user_id,
     });
 
     const complaint = await this.complaintRepository.findOneBy({
@@ -63,7 +63,7 @@ export class ComplaintHistoryService {
 
   async findOne(id: string): Promise<ApiResponse<ComplaintHistory>> {
     const history = await this.complaintHistoryRepository.findOne({
-      where: { id },
+      where: { complaint_history_id: id },
       relations: ['user', 'complaint'],
     });
 
@@ -78,7 +78,9 @@ export class ComplaintHistoryService {
     id: string,
     updateComplaintHistoryDto: UpdateComplaintHistoryDto,
   ): Promise<ApiResponse<ComplaintHistory>> {
-    const history = await this.complaintHistoryRepository.findOneBy({ id });
+    const history = await this.complaintHistoryRepository.findOneBy({
+      complaint_history_id: id,
+    });
 
     if (!history) {
       throw new NotFoundException(`ComplaintHistory with ID ${id} not found`);

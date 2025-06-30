@@ -25,10 +25,10 @@ export class FeedbacksService {
     createFeedbackDto: CreateFeedbackDto,
   ): Promise<ApiResponse<Feedback>> {
     const user = await this.userRepository.findOneBy({
-      id: createFeedbackDto.userId,
+      user_id: createFeedbackDto.user_id,
     });
     const complaint = await this.complaintRepository.findOneBy({
-      complaint_id: createFeedbackDto.complaintId,
+      complaint_id: createFeedbackDto.complaint_id,
     });
 
     if (!user || !complaint) {
@@ -63,7 +63,7 @@ export class FeedbacksService {
 
   async findOne(id: string): Promise<ApiResponse<Feedback>> {
     const feedback = await this.feedbackRepository.findOne({
-      where: { id },
+      where: { feedback_id: id },
       relations: ['user', 'complaint'],
     });
 
@@ -78,7 +78,9 @@ export class FeedbacksService {
     id: string,
     updateFeedbackDto: UpdateFeedbackDto,
   ): Promise<ApiResponse<Feedback>> {
-    const feedback = await this.feedbackRepository.findOneBy({ id });
+    const feedback = await this.feedbackRepository.findOneBy({
+      feedback_id: id,
+    });
 
     if (!feedback) {
       throw new NotFoundException(`Feedback with ID ${id} not found`);

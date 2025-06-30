@@ -12,7 +12,7 @@ import { Complaint } from 'src/complaints/entities/complaint.entity';
 @Entity('feedbacks')
 export class Feedback {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  feedback_id: string;
 
   @Column('text')
   message: string;

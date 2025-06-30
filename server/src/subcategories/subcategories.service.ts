@@ -21,11 +21,11 @@ export class SubcategoriesService {
   ): Promise<ApiResponse<Subcategory>> {
     try {
       const category = await this.categoryRepository.findOneBy({
-        category_id: createSubcategoryDto.categoryId,
+        category_id: createSubcategoryDto.category_id,
       });
       if (!category) {
         throw new Error(
-          `Category with id ${createSubcategoryDto.categoryId} not found`,
+          `Category with id ${createSubcategoryDto.category_id} not found`,
         );
       }
 
@@ -60,7 +60,7 @@ export class SubcategoriesService {
   async findOne(id: string): Promise<ApiResponse<Subcategory> | string> {
     try {
       const subcategory = await this.subCategoryRepository.findOne({
-        where: { id },
+        where: { subcategory_id: id },
         relations: ['category'],
       });
 
@@ -80,19 +80,21 @@ export class SubcategoriesService {
     updateSubcategoryDto: UpdateSubcategoryDto,
   ): Promise<ApiResponse<Subcategory> | string> {
     try {
-      const existing = await this.subCategoryRepository.findOneBy({ id });
+      const existing = await this.subCategoryRepository.findOneBy({
+        subcategory_id: id,
+      });
       if (!existing) {
         return `Subcategory with id ${id} not found`;
       }
 
       // If category is being updated, validate new category
-      if (updateSubcategoryDto.categoryId) {
+      if (updateSubcategoryDto.category_id) {
         const category = await this.categoryRepository.findOneBy({
-          category_id: updateSubcategoryDto.categoryId,
+          category_id: updateSubcategoryDto.category_id,
         });
         if (!category) {
           throw new Error(
-            `Category with id ${updateSubcategoryDto.categoryId} not found`,
+            `Category with id ${updateSubcategoryDto.category_id} not found`,
           );
         }
 

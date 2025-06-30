@@ -11,7 +11,7 @@ import { AuditAction } from '../dto/create-audit-log.dto';
 @Entity('audit_logs')
 export class AuditLog {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  audit_id: string;
 
   @Column({ type: 'enum', enum: AuditAction })
   action: AuditAction;

@@ -12,7 +12,7 @@ import { ComplaintStatus } from '../dto/create-complaint-history.dto';
 @Entity('complaint_history')
 export class ComplaintHistory {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  complaint_history_id: string;
 
   @Column({ type: 'enum', enum: ComplaintStatus })
   from_status: ComplaintStatus;

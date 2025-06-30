@@ -36,5 +36,5 @@ export class CreateNotificationDto {
   is_read?: boolean;
 
   @IsUUID()
-  userId: string;
+  user_id: string;
 }

@@ -21,5 +21,5 @@ export class CreateSubcategoryDto {
   description: string;
 
   @IsString()
-  categoryId: string;
+  category_id: string;
 }

@@ -64,12 +64,12 @@ export class CreateComplaintDto {
   location: string;
 
   @IsString()
-  userId: string;
+  user_id: string;
 
   @IsString()
-  categoryId: string;
+  category_id: string;
 
   @IsString()
   @IsOptional()
-  subcategoryId?: string;
+  subcategory_id?: string;
 }

@@ -21,12 +21,12 @@ export class AuditLogsService {
     createAuditLogDto: CreateAuditLogDto,
   ): Promise<ApiResponse<AuditLog>> {
     const user = await this.userRepository.findOneBy({
-      id: createAuditLogDto.userId,
+      user_id: createAuditLogDto.user_id,
     });
 
     if (!user) {
       throw new NotFoundException(
-        `User with ID ${createAuditLogDto.userId} not found`,
+        `User with ID ${createAuditLogDto.user_id} not found`,
       );
     }
 
@@ -56,7 +56,7 @@ export class AuditLogsService {
 
   async findOne(id: string): Promise<ApiResponse<AuditLog>> {
     const log = await this.auditLogRepository.findOne({
-      where: { id },
+      where: { audit_id: id },
       relations: ['user'],
     });
 
@@ -71,7 +71,7 @@ export class AuditLogsService {
     id: string,
     updateAuditLogDto: UpdateAuditLogDto,
   ): Promise<ApiResponse<AuditLog>> {
-    const log = await this.auditLogRepository.findOneBy({ id });
+    const log = await this.auditLogRepository.findOneBy({ audit_id: id });
 
     if (!log) {
       throw new NotFoundException(`Audit log with ID ${id} not found`);

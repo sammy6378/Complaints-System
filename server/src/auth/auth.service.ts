@@ -14,7 +14,7 @@ import { currentUser } from 'src/types/jwtUser';
 import { MailService } from 'src/mail/mail.service';
 
 interface decodedToken {
-  userId: string;
+  user_id: string;
   email: string;
 }
 
@@ -28,10 +28,10 @@ export class AuthService {
   ) {}
 
   // token for reset email
-  private async createResetToken(userId: string, email: string) {
+  private async createResetToken(user_id: string, email: string) {
     const [token] = await Promise.all([
       this.jwtService.signAsync(
-        { userId, email },
+        { user_id, email },
         {
           secret: this.configService.getOrThrow<string>('JWT_ACCESS_SECRET'),
           expiresIn: this.configService.getOrThrow<string>(
@@ -66,11 +66,11 @@ export class AuthService {
   }
 
   // create tokens
-  private async createTokens(userId: string, email: string) {
+  private async createTokens(user_id: string, email: string) {
     const [at, rt] = await Promise.all([
       // Generate access token
       this.jwtService.signAsync(
-        { sub: userId, email },
+        { sub: user_id, email },
         {
           secret: this.configService.getOrThrow<string>('JWT_ACCESS_SECRET'),
           expiresIn: this.configService.getOrThrow<string>(
@@ -81,7 +81,7 @@ export class AuthService {
 
       // generate refresh token
       this.jwtService.signAsync(
-        { sub: userId, email },
+        { sub: user_id, email },
         {
           secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
           expiresIn: this.configService.getOrThrow<string>(
@@ -131,7 +131,7 @@ export class AuthService {
     // Find user by email
     const user = await this.userRepository.findOne({
       where: { email: CreateAuthDto.email },
-      select: ['id', 'email', 'password'],
+      select: ['user_id', 'email', 'password'],
     });
 
     if (!user) {
@@ -149,21 +149,21 @@ export class AuthService {
 
     // create tokens
     const { accessToken, refreshToken } = await this.createTokens(
-      user.id,
+      user.user_id,
       user.email,
     );
 
     // save refresh token in the database
-    await this.saveRefreshToken(user.id, refreshToken);
+    await this.saveRefreshToken(user.user_id, refreshToken);
 
     // return tokens
     return { accessToken, refreshToken };
   }
 
   // sign out users
-  async signOut(userId: string) {
+  async signOut(user_id: string) {
     // refresh token to null
-    const res = await this.userRepository.update(userId, {
+    const res = await this.userRepository.update(user_id, {
       refresh_token: null,
     });
 
@@ -175,10 +175,10 @@ export class AuthService {
   }
 
   // refresh tokens
-  async refreshTokens(userId: string, refreshToken: string) {
+  async refreshTokens(user_id: string, refreshToken: string) {
     // find user by id
     const user = await this.userRepository.findOne({
-      where: { id: userId },
+      where: { user_id: user_id },
     });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -197,29 +197,33 @@ export class AuthService {
 
     // generate new tokens
     const { accessToken, refreshToken: newRefreshToken } =
-      await this.createTokens(user.id, user.email);
+      await this.createTokens(user.user_id, user.email);
 
     return { accessToken, refreshToken: newRefreshToken };
   }
 
   // validate user
-  async validateJwtUser(userId: string) {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
+  async validateJwtUser(user_id: string) {
+    const user = await this.userRepository.findOne({
+      where: { user_id: user_id },
+    });
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
-    const currentUser: currentUser = { id: user.id, role: user.role };
+    const currentUser: currentUser = { id: user.user_id, role: user.role };
 
     return currentUser;
   }
 
   // change password
   async changePassword(
-    userId: string,
+    user_id: string,
     oldPassword: string,
     newPassword: string,
   ) {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const user = await this.userRepository.findOne({
+      where: { user_id: user_id },
+    });
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
@@ -234,7 +238,7 @@ export class AuthService {
     const hashedPassword = await this.hashPassword(newPassword);
 
     // save password
-    await this.userRepository.update(userId, { password: hashedPassword });
+    await this.userRepository.update(user_id, { password: hashedPassword });
 
     return { message: 'Password changed successfuly' };
   }
@@ -244,7 +248,7 @@ export class AuthService {
     // find user by email
     const user = await this.userRepository.findOne({
       where: { email },
-      select: ['id', 'email', 'username'],
+      select: ['user_id', 'email', 'username'],
     });
 
     if (!user) {
@@ -252,7 +256,10 @@ export class AuthService {
     }
 
     // create token with user id and email
-    const { resetToken } = await this.createResetToken(user.id, user.email);
+    const { resetToken } = await this.createResetToken(
+      user.user_id,
+      user.email,
+    );
 
     // send email with reset link
     await this.mailService
@@ -276,7 +283,7 @@ export class AuthService {
 
     return {
       message: 'Password reset link sent to your email',
-      userId: user.id,
+      userId: user.user_id,
       email: user.email,
     };
   }
@@ -286,7 +293,7 @@ export class AuthService {
     // verify the token
     const res = await this.verifyToken(token);
     const user = await this.userRepository.findOne({
-      where: { id: res.userId, email: res.email },
+      where: { user_id: res.user_id, email: res.email },
     });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -296,7 +303,9 @@ export class AuthService {
     const hashedPassword = await this.hashPassword(newPassword);
 
     // update the password in the database
-    await this.userRepository.update(user.id, { password: hashedPassword });
+    await this.userRepository.update(user.user_id, {
+      password: hashedPassword,
+    });
 
     return {
       message: `Password reset successful for ${user.email}`,
